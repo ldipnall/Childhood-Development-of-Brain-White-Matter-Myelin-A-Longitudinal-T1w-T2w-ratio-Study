@@ -1,0 +1,33 @@
+#This code was written and run by Jian Chen and Joseph MY Yang
+
+#!/bin/bash 
+ProjDir=/data/jianc/Joseph/NICAP/NICAP_wave1/
+TempDir=/data/jianc/Joseph/VIBeS/VIBeS_13Y/ProjFiles/MNI152_Template/
+
+RAWIMAGES=${ProjDir}/RawImages/
+BIASCORRECTED=${ProjDir}/BiasCorrected
+SKULLSTRIPPED=${ProjDir}/SkullStripped
+COREGISTERED=${ProjDir}/Coregistered
+COREGISTEREDQA=${ProjDir}/CoregisteredQA
+REGISTRATION=${ProjDir}/Registration
+SPMDir=${ProjDir}/SPM
+WITHOUTCAL=${ProjDir}/WithoutCal
+
+CURRENTDIR=`pwd`
+mkdir ${WITHOUTCAL}/${1}
+cd ${WITHOUTCAL}/${1}
+
+
+############
+#Ratio image
+############
+fslmaths ${SKULLSTRIPPED}/${1}_T1.nii.gz -div ${COREGISTERED}/${1}_T2_brain.nii.gz ${1}_T1_to_T2_ratio_brain
+
+
+########################
+#Warp T1_to_T2 to MNI152
+########################
+WarpImageMultiTransform 3  ${1}_T1_to_T2_ratio_brain.nii.gz ${1}_T1_to_T2_ratio_brain_std.nii.gz -R  ${TempDir}/MNI152_T1_2mm_brain.nii.gz -i ${REGISTRATION}/${1}/${1}_std_to_T1_itk.txt ${REGISTRATION}/${1}/${1}_std_to_T10InverseWarp.nii.gz
+
+
+cd ${CURRENTDIR}

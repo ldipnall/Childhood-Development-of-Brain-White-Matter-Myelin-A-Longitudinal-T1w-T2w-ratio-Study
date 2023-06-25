@@ -1,0 +1,86 @@
+#This code was written and run by Jian Chen and Joseph MY Yang
+
+TempDir='/data/jianc/Joseph/NICAP/NICAP_wave1/ProjFiles/MNI152_Template/'
+
+###########################
+#Calculate means in JHU ROI
+###########################
+ 
+rm -rf ??_mean.txt
+rm -rf JHU_ROI_mean.csv
+for m in `seq 1 48`; do 
+mm=`zeropad $m 2`
+
+for i in `cat $1`; do 
+
+fslmaths /usr/local/fsl-5.0.9/data/atlases/JHU/JHU-ICBM-labels-2mm.nii.gz -thr $m -uthr $m -bin ROI
+min=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ROI  -r | cut -f1 -d " "`
+max=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ROI  -r | cut -f2 -d " "` 
+fslmaths ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -thr ${min} -uthr ${max} temp
+fslstats temp.nii.gz -k ROI -M >> ${mm}_mean.txt
+done
+done
+
+paste ??_mean.txt -d "," > JHU_ROI_mean.csv
+
+rm -rf ROI.nii.gz temp.nii.gz
+
+####################################
+#Calculate means in subcortical grey
+####################################
+
+
+rm -rf L_* R_* DG_Masks_mean.csv
+
+for m in `cat ${TempDir}/Masks/subcort_Mask_list.txt`; do 
+s=`remove_ext $m`
+ for i in `cat $1`; do
+	min=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ${TempDir}/Masks/$s  -r | cut -f1 -d " "`
+	max=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ${TempDir}/Masks/$s  -r | cut -f2 -d " "` 
+	fslmaths ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -thr ${min} -uthr ${max} temp
+    fslstats temp.nii.gz -k ${TempDir}/Masks/$s -M >> ${s}_mean.txt
+ done
+done
+echo  L_Caudate, R_Caudate, L_Putamen, R_Putamen, L_Thalamus, R_Thalamus > DG_Masks_mean.csv
+paste L_Caudate_mean.txt R_Caudate_mean.txt L_Putamen_mean.txt R_Putamen_mean.txt L_Thalamus_mean.txt R_Thalamus_mean.txt -d "," >> DG_Masks_mean.csv
+
+rm -rf ROI.nii.gz temp.nii.gz
+
+####################################
+#Calculate mean in white matter mask
+####################################
+rm -rf whitematter_mean.csv
+for i in `cat $1`; do 
+min=`fslstats ${i}/${i}_T1_to_T2_ratio_brain.nii.gz -k ../SPM/${i}_wht_mask.nii.gz -r | cut -f1 -d " "`
+max=`fslstats ${i}/${i}_T1_to_T2_ratio_brain.nii.gz -k ../SPM/${i}_wht_mask.nii.gz -r | cut -f2 -d " "`
+fslmaths ${i}/${i}_T1_to_T2_ratio_brain.nii.gz -thr ${min} -uthr ${max} temp
+
+fslstats temp.nii.gz -k ../SPM/${i}_wht_mask.nii.gz -M >> whitematter_mean.csv 
+done
+
+rm -rf temp.nii.gz
+
+
+TempDir='/data/jianc/Joseph/NICAP/NICAP_wave1/ProjFiles/MNI152_Template/'
+
+###########################
+#Calculate means in CCseg_Aboitiz ROI
+###########################
+ 
+rm -rf B?_mean.txt G?_mean.txt ISTH_mean.txt S?_mean.txt
+rm -rf CCseg_Aboitiz_mean.csv
+
+for m in `cat ${TempDir}/Masks/CCseg_Aboitiz/CCseg_Aboitiz_list.txt`; do 
+s=`remove_ext $m`
+ for i in `cat $1`; do
+	min=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ${TempDir}/Masks/CCseg_Aboitiz/$s  -r | cut -f1 -d " "`
+	max=`fslstats ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -k ${TempDir}/Masks/CCseg_Aboitiz/$s  -r | cut -f2 -d " "` 
+	fslmaths ${i}/${i}_T1_to_T2_ratio_brain_std.nii.gz -thr ${min} -uthr ${max} temp
+    fslstats temp.nii.gz -k ${TempDir}/Masks/CCseg_Aboitiz/$s -M >> ${s}_mean.txt
+ done
+done
+echo  B1 B2 B3 G1 G2 G3 ISTH S1 S2 S3 > CCseg_Aboitiz_Masks_mean.csv
+paste B1_mean.txt B2_mean.txt B3_mean.txt G1_mean.txt G2_mean.txt G3_mean.txt ISTH_mean.txt S1_mean.txt S2_mean.txt S3_mean.txt -d "," >> CCseg_Aboitiz_Masks_mean.csv
+
+rm -rf ROI.nii.gz temp.nii.gz
+

@@ -1,0 +1,81 @@
+#This code was written and run by Jian Chen and Joseph MY Yang
+
+ProjDir=/isilon/data/jianc/Joseph/NICAP/NICAP_wave1/
+ScriptsDir=/isilon/data/jianc/Joseph/NICAP/NICAP_wave1/ProjFiles/Scripts/
+TempDir=/isilon/data/jianc/Joseph/NICAP/NICAP_wave1/ProjFiles/MNI152_Template/
+
+RAWIMAGES=${ProjDir}/RawImages/
+BIASCORRECTED=${ProjDir}/BiasCorrected
+SKULLSTRIPPED=${ProjDir}/SkullStripped
+COREGISTERED=${ProjDir}/Coregistered
+COREGISTEREDQA=${ProjDir}/CoregisteredQA
+REGISTRATION=${ProjDir}/Registration
+
+################
+#struct-neckcrop
+################
+for i in `cat ID.txt`; do ConnReconAll --struct-neckcrop ${i}_T1; done
+for i in `cat ID.txt`; do ConnReconAll --struct-neckcrop ${i}_T2; done
+
+###########################
+#biasfield correction
+###########################
+for i in `cat ID.txt`; do ConnReconAll --struct-biascorrect ${i}_T1; done
+for i in `cat ID.txt`; do ConnReconAll --struct-biascorrect ${i}_T2; done
+
+###########################
+#struct-skullstrip
+###########################
+for i in `cat ID.txt`; do ConnReconAll --struct-skullstrip ${i}_T1; done
+for i in `cat ID.txt`; do ConnReconAll --struct-skullstrip ${i}_T2; done
+
+
+##########################
+#Coregister T1 and T2
+#SPM segmentation on T1
+##########################
+mkdir ${COREGISTERED}
+mkdir ${COREGISTEREDQA}
+for i in `cat ID.txt`
+do  
+flirt -in ${SKULLSTRIPPED}/${i}_T2 -ref ${SKULLSTRIPPED}/${i}_T1 -omat ${COREGISTERED}/${i}_T2_to_T1.mat -dof 6 
+
+flirt -in ${BIASCORRECTED}/${i}_T2 -ref ${BIASCORRECTED}/${i}_T1 -out ${COREGISTERED}/${i}_T2 -applyxfm -init ${COREGISTERED}/${i}_T2_to_T1.mat
+
+fslmaths ${COREGISTERED}/${1}_T2.nii.gz -mul ${SKULLSTRIPPED}/${1}_T1_mask.nii.gz  ${COREGISTERED}/${1}_T2_brain.nii.gz
+
+slices_output ${COREGISTEREDQA}/overlay_${i}.png  ${BIASCORRECTED}/${i}_T1 ${COREGISTERED}/${i}_T2
+done
+
+
+mkdir ${REGISTRATION}
+###########################
+#Better registration to std
+###########################
+
+mkdir RegistrationQA
+
+for i in `cat ID.txt`
+do  
+mkdir -p ${REGISTRATION}/${i}/
+flirt -in ${TempDir}/MNI152_T1_2mm_brain -ref ${SKULLSTRIPPED}/${i}_T1 -omat ${REGISTRATION}/${i}/${i}_std_to_T1.mat -dof 12
+flirt -in ${TempDir}/MNI152_T1_2mm_brain -ref ${SKULLSTRIPPED}/${i}_T1 -out ${REGISTRATION}/${i}/${i}_std_to_T1_brain_linear.nii.gz -applyxfm -init ${REGISTRATION}/${i}/${i}_std_to_T1.mat
+
+c3d_affine_tool -ref  ${SKULLSTRIPPED}/${i}_T1.nii.gz -src ${TempDir}/MNI152_T1_2mm_brain.nii.gz ${REGISTRATION}/${i}/${i}_std_to_T1.mat -fsl2ras -oitk ${REGISTRATION}/${i}/${i}_std_to_T1_itk.txt
+
+
+flirt -in ${TempDir}/MNI152_T1_2mm -ref ${SKULLSTRIPPED}/${i}_T1 -out ${REGISTRATION}/${i}/${i}_std_to_T1_linear.nii.gz -applyxfm -init ${REGISTRATION}/${i}/${i}_std_to_T1.mat
+antsRegistration -d 3 -m MI[${BIASCORRECTED}/${i}_T1.nii.gz, ${REGISTRATION}/${i}/${i}_std_to_T1_linear.nii.gz,1,32] -c [100x50x20,1e-7,5] -t SyN[0.1,3,0] -f 4x2x1 -s 2x1x0mm -u 1 -z 1 --winsorize-image-intensities [0.005, 0.995] -o ${REGISTRATION}/${i}/${i}_std_to_T1
+
+WarpImageMultiTransform 3 ${TempDir}/MNI152_T1_2mm.nii.gz ${REGISTRATION}/${i}/${i}_std_to_T1.nii.gz  -R ${BIASCORRECTED}/${i}_T1.nii.gz ${REGISTRATION}/${i}/${i}_std_to_T10Warp.nii.gz ${REGISTRATION}/${i}/${i}_std_to_T1_itk.txt
+
+WarpImageMultiTransform 3  ${BIASCORRECTED}/${i}_T1.nii.gz ${REGISTRATION}/${i}/${i}_T1_to_std.nii.gz -R  ${TempDir}/MNI152_T1_2mm_brain.nii.gz -i ${REGISTRATION}/${i}/${i}_std_to_T1_itk.txt ${REGISTRATION}/${i}/${i}_std_to_T10InverseWarp.nii.gz
+
+slices_output RegistrationQA/overlay_mni_${i}.png ${BIASCORRECTED}/${i}_T1.nii.gz Registration/${i}/${i}_std_to_T1.nii.gz
+
+done
+
+
+
+
+

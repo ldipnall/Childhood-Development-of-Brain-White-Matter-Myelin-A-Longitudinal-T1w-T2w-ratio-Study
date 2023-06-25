@@ -1,0 +1,13 @@
+#This code was written and run by Jian Chen and Joseph MY Yang
+
+for i in `cat NICAP_finalID_inAnalysis.txt`; do fslstats ../../Coregistered/*${i}_T2.nii.gz -k ../../SPM/*${i}_csf_mask.nii.gz -M >> T2_csf_finalID_inAnalysis.txt; done
+
+#awk '{ total += $1 } END { print total/NR }' T2_csf_finalID_inAnalysis.txt > T2_csf_mean_finalID_inAnalysis.txt
+
+for i in `cat NICAP_finalID_inAnalysis.txt`; do fslstats ../../SkullStripped/*${i}_T1.nii.gz -k ../../SPM/*${i}_csf_mask.nii.gz -M >> T1_csf_finalID_inAnalysis.txt;done
+
+paste T1_csf_finalID_inAnalysis.txt T2_csf_finalID_inAnalysis.txt > temp.txt
+
+awk 'NR==1{$3="ratio"}NR>1{$3=$1/$2}1' temp.txt > T1T2_csf_finalID_inAnalysis.txt
+
+awk '{ total += $3 } END { print total/NR }' T1T2_csf_finalID_inAnalysis.txt > T1T2_csf_mean_finalID_inAnalysis.txt
