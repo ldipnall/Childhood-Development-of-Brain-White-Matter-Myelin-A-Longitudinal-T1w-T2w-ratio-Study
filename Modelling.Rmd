@@ -237,18 +237,6 @@ UF_left | wave_nicap, data=controls)
 table2
 ```
 
-#Age Visualisations
-```{r}
-age_distrib <- ggplot(controls, aes(x = age, y = id)) +
-  geom_point(aes(colour = wave_nicap), alpha = .4)+
-  stat_smooth(aes(group = id), method = "lm", se = F, size = .1, col = 1) +
-  theme_classic() + 
-  scale_y_continuous(name = "") + 
-  scale_x_continuous(name = "Age (Years)")
-age_distrib
-ggsave("age_distrib.png")
-```
-
 
 #-------AF
 #*AF Left
@@ -295,26 +283,6 @@ AF_left_model_comp4 <- anova(model_AF_left5, model_AF_left6)
 AF_left_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_AF_left4)
-#Model 5
-model_AF_left4_augmented <- augment(model_AF_left4)
-p1 <-ggplot(model_AF_left4_augmented, aes(age_c, AF_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_AF_left4_augmented[[".resid"]])
-```
-
 #*AF Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -359,27 +327,6 @@ AF_right_model_comp3
 AF_right_model_comp4 <- anova(model_AF_right5, model_AF_right6)
 AF_right_model_comp4
 ```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_AF_right4)
-#Model 5
-model_AF_right4_augmented <- augment(model_AF_right4)
-p1 <-ggplot(model_AF_right4_augmented, aes(age_c, AF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF right") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_AF_right4_augmented[[".resid"]])
-```
-
 
 
 #-------ATR
@@ -429,25 +376,6 @@ ATR_left_model_comp4 <- anova(model_ATR_left5, model_ATR_left6)
 ATR_left_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ATR_left4)
-#Model 5
-model_ATR_left4_augmented <- augment(model_ATR_left4)
-p1 <-ggplot(model_ATR_left4_augmented, aes(age_c, ATR_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ATR_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -492,25 +420,7 @@ ATR_right_model_comp4 <- anova(model_ATR_right5, model_ATR_right6)
 ATR_right_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ATR_right4)
-#Model 5
-model_ATR_right4_augmented <- augment(model_ATR_right4)
-p1 <-ggplot(model_ATR_right4_augmented, aes(age_c, ATR_right, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ATR_right4_augmented[[".resid"]])
-```
 #-------CA
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -554,27 +464,6 @@ CA_model_comp3
 CA_model_comp4 <- anova(model_CA5, model_CA6)
 CA_model_comp4
 ```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CA4)
-#Model 5
-model_CA4_augmented <- augment(model_CA4)
-p1 <-ggplot(model_CA4_augmented, aes(age_c, CA, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CA4_augmented[[".resid"]])
-```
-
 
 #-------CC
 #*1 Rostrum
@@ -621,25 +510,6 @@ CC1_model_comp4 <- anova(model_CC1_5, model_CC1_6)
 CC1_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC1_4)
-#Model 5
-model_CC1_4_augmented <- augment(model_CC1_4)
-p1 <-ggplot(model_CC1_4_augmented, aes(age_c, CC1, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC1_4_augmented[[".resid"]])
-```
 
 #*2 Genu
 #Linear Model
@@ -684,25 +554,7 @@ CC2_model_comp4 <- anova(model_CC2_5, model_CC2_6)
 CC2_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC2_4)
-#Model 5
-model_CC2_4_augmented <- augment(model_CC2_4)
-p1 <-ggplot(model_CC2_4_augmented, aes(age_c, CC2, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC2_4_augmented[[".resid"]])
-```
 
 #*3 Rostral Body
 #Linear Model
@@ -747,25 +599,7 @@ CC3_model_comp4 <- anova(model_CC3_5, model_CC3_6)
 CC3_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC3_4)
-#Model 5
-model_CC3_4_augmented <- augment(model_CC3_4)
-p1 <-ggplot(model_CC3_4_augmented, aes(age_c, CC3, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC3_4_augmented[[".resid"]])
-```
 
 #*4 Anterior Midbody
 #Linear Model
@@ -810,25 +644,7 @@ CC4_model_comp4 <- anova(model_CC4_5, model_CC4_6)
 CC4_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC4_4)
-#Model 5
-model_CC4_4_augmented <- augment(model_CC4_4)
-p1 <-ggplot(model_CC4_4_augmented, aes(age_c, CC4, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC4_4_augmented[[".resid"]])
-```
 
 #*5 Posterior Midbody
 #Linear Model
@@ -873,25 +689,6 @@ CC5_model_comp4 <- anova(model_CC5_5, model_CC5_6)
 CC5_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC5_4)
-#Model 5
-model_CC5_4_augmented <- augment(model_CC5_4)
-p1 <-ggplot(model_CC5_4_augmented, aes(age_c, CC5, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC5_4_augmented[[".resid"]])
-```
 
 #*6 Isthmus
 #Linear Model
@@ -936,25 +733,7 @@ CC6_model_comp4 <- anova(model_CC6_5, model_CC6_6)
 CC6_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC6_4)
-#Model 5
-model_CC6_4_augmented <- augment(model_CC6_4)
-p1 <-ggplot(model_CC6_4_augmented, aes(age_c, CC6, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC6_4_augmented[[".resid"]])
-```
 
 #*7 Splenium
 #Linear Model
@@ -1000,25 +779,7 @@ CC7_model_comp4 <- anova(model_CC7_5, model_CC7_6)
 CC7_model_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CC7_4)
-#Model 5
-model_CC7_4_augmented <- augment(model_CC7_4)
-p1 <-ggplot(model_CC7_4_augmented, aes(age_c, CC7, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CC7_4_augmented[[".resid"]])
-```
 
 #-------CG
 #*Left
@@ -1064,25 +825,7 @@ CG_leftmodel_comp4 <- anova(model_CG_left5, model_CG_left6)
 CG_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CG_left4)
-#Model 5
-model_CG_left4_augmented <- augment(model_CG_left4)
-p1 <-ggplot(model_CG_left4_augmented, aes(age_c, CG_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CG_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1127,25 +870,7 @@ CG_rightmodel_comp4 <- anova(model_CG_right5, model_CG_right6)
 CG_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CG_right4)
-#Model 5
-model_CG_right4_augmented <- augment(model_CG_right4)
-p1 <-ggplot(model_CG_right4_augmented, aes(age_c, CG_right, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CG_right4_augmented[[".resid"]])
-```
 
 #-------CST
 #*Left
@@ -1191,25 +916,7 @@ CST_leftmodel_comp4 <- anova(model_CST_left5, model_CST_left6)
 CST_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CST_left4)
-#Model 5
-model_CST_left4_augmented <- augment(model_CST_left4)
-p1 <-ggplot(model_CST_left4_augmented, aes(age_c, CST_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CST_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1254,25 +961,7 @@ CST_rightmodel_comp4 <- anova(model_CST_right5, model_CST_right6)
 CST_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_CST_right4)
-#Model 5
-model_CST_right4_augmented <- augment(model_CST_right4)
-p1 <-ggplot(model_CST_right4_augmented, aes(age_c, CST_right, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_CST_right4_augmented[[".resid"]])
-```
 
 #-------FPT
 #*Left
@@ -1318,25 +1007,7 @@ FPT_leftmodel_comp4 <- anova(model_FPT_left5, model_FPT_left6)
 FPT_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_FPT_left4)
-#Model 5
-model_FPT_left4_augmented <- augment(model_FPT_left4)
-p1 <-ggplot(model_FPT_left4_augmented, aes(age_c, FPT_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_FPT_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1381,25 +1052,7 @@ FPT_rightmodel_comp4 <- anova(model_FPT_right5, model_FPT_right6)
 FPT_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_FPT_right4)
-#Model 5
-model_FPT_right4_augmented <- augment(model_FPT_right4)
-p1 <-ggplot(model_FPT_right4_augmented, aes(age_c, FPT_right, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_FPT_right4_augmented[[".resid"]])
-```
 
 #-------FX
 #*Left
@@ -1445,25 +1098,7 @@ FX_leftmodel_comp4 <- anova(model_FX_left5, model_FX_left6)
 FX_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_FX_left4)
-#Model 5
-model_FX_left4_augmented <- augment(model_FX_left4)
-p1 <-ggplot(model_FX_left4_augmented, aes(age_c, FX_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_FX_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1508,25 +1143,6 @@ FX_rightmodel_comp4 <- anova(model_FX_right5, model_FX_right6)
 FX_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_FX_right4)
-#Model 5
-model_FX_right4_augmented <- augment(model_FX_right4)
-p1 <-ggplot(model_FX_right4_augmented, aes(age_c, FX_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_FX_right4_augmented[[".resid"]])
-```
 
 #-------ICP
 #*Left
@@ -1572,25 +1188,6 @@ ICP_leftmodel_comp4 <- anova(model_ICP_left5, model_ICP_left6)
 ICP_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ICP_left4)
-#Model 5
-model_ICP_left4_augmented <- augment(model_ICP_left4)
-p1 <-ggplot(model_ICP_left4_augmented, aes(age_c, ICP_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ICP_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1635,25 +1232,6 @@ ICP_rightmodel_comp4 <- anova(model_ICP_right5, model_ICP_right6)
 ICP_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ICP_right4)
-#Model 5
-model_ICP_right4_augmented <- augment(model_ICP_right4)
-p1 <-ggplot(model_ICP_right4_augmented, aes(age_c, ICP_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ICP_right4_augmented[[".resid"]])
-```
 
 
 #-------IFO
@@ -1700,25 +1278,7 @@ IFO_leftmodel_comp4 <- anova(model_IFO_left5, model_IFO_left6)
 IFO_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_IFO_left4)
-#Model 5
-model_IFO_left4_augmented <- augment(model_IFO_left4)
-p1 <-ggplot(model_IFO_left4_augmented, aes(age_c, IFO_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_IFO_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1763,25 +1323,6 @@ IFO_rightmodel_comp4 <- anova(model_IFO_right5, model_IFO_right6)
 IFO_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_IFO_right4)
-#Model 5
-model_IFO_right4_augmented <- augment(model_IFO_right4)
-p1 <-ggplot(model_IFO_right4_augmented, aes(age_c, IFO_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_IFO_right4_augmented[[".resid"]])
-```
 
 #-------ILF
 #*Left
@@ -1827,25 +1368,6 @@ ILF_leftmodel_comp4 <- anova(model_ILF_left5, model_ILF_left6)
 ILF_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ILF_left4)
-#Model 5
-model_ILF_left4_augmented <- augment(model_ILF_left4)
-p1 <-ggplot(model_ILF_left4_augmented, aes(age_c, ILF_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ILF_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -1890,25 +1412,6 @@ ILF_rightmodel_comp4 <- anova(model_ILF_right5, model_ILF_right6)
 ILF_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ILF_right4)
-#Model 5
-model_ILF_right4_augmented <- augment(model_ILF_right4)
-p1 <-ggplot(model_ILF_right4_augmented, aes(age_c, ILF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ILF_right4_augmented[[".resid"]])
-```
 
 #-------MCP
 #Linear Model
@@ -1953,25 +1456,6 @@ MCPmodel_comp4 <- anova(model_MCP5, model_MCP6)
 MCPmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_MCP4)
-#Model 5
-model_MCP4_augmented <- augment(model_MCP4)
-p1 <-ggplot(model_MCP4_augmented, aes(age_c, MCP, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_MCP4_augmented[[".resid"]])
-```
 
 #-------MLF
 #*Left
@@ -2017,25 +1501,7 @@ MLF_leftmodel_comp4 <- anova(model_MLF_left5, model_MLF_left6)
 MLF_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_MLF_left4)
-#Model 5
-model_MLF_left4_augmented <- augment(model_MLF_left4)
-p1 <-ggplot(model_MLF_left4_augmented, aes(age_c, MLF_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_MLF_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2079,25 +1545,6 @@ MLF_rightmodel_comp4 <- anova(model_MLF_right5, model_MLF_right6)
 MLF_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_MLF_right4)
-#Model 5
-model_MLF_right4_augmented <- augment(model_MLF_right4)
-p1 <-ggplot(model_MLF_right4_augmented, aes(age_c, MLF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_MLF_right4_augmented[[".resid"]])
-```
 
 #-------OR
 #*Left
@@ -2143,25 +1590,6 @@ OR_leftmodel_comp4 <- anova(model_OR_left5, model_OR_left6)
 OR_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_OR_left4)
-#Model 5
-model_OR_left4_augmented <- augment(model_OR_left4)
-p1 <-ggplot(model_OR_left4_augmented, aes(age_c, OR_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_OR_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -2204,26 +1632,6 @@ OR_rightmodel_comp3
 
 OR_rightmodel_comp4 <- anova(model_OR_right5, model_OR_right6)
 OR_rightmodel_comp4
-```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_OR_right4)
-#Model 5
-model_OR_right4_augmented <- augment(model_OR_right4)
-p1 <-ggplot(model_OR_right4_augmented, aes(age_c, OR_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_OR_right4_augmented[[".resid"]])
 ```
 
 #-------POPT
@@ -2270,25 +1678,6 @@ POPT_leftmodel_comp4 <- anova(model_POPT_left5, model_POPT_left6)
 POPT_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_POPT_left4)
-#Model 5
-model_POPT_left4_augmented <- augment(model_POPT_left4)
-p1 <-ggplot(model_POPT_left4_augmented, aes(age_c, POPT_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_POPT_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2332,25 +1721,6 @@ POPT_rightmodel_comp4 <- anova(model_POPT_right5, model_POPT_right6)
 POPT_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_POPT_right4)
-#Model 5
-model_POPT_right4_augmented <- augment(model_POPT_right4)
-p1 <-ggplot(model_POPT_right4_augmented, aes(age_c, POPT_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_POPT_right4_augmented[[".resid"]])
-```
 
 #-------SCP
 #*Left
@@ -2396,25 +1766,6 @@ SCP_leftmodel_comp4 <- anova(model_SCP_left5, model_SCP_left6)
 SCP_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SCP_left4)
-#Model 5
-model_SCP_left4_augmented <- augment(model_SCP_left4)
-p1 <-ggplot(model_SCP_left4_augmented, aes(age_c, SCP_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SCP_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2458,25 +1809,6 @@ SCP_rightmodel_comp4 <- anova(model_SCP_right5, model_SCP_right6)
 SCP_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SCP_right4)
-#Model 5
-model_SCP_right4_augmented <- augment(model_SCP_right4)
-p1 <-ggplot(model_SCP_right4_augmented, aes(age_c, SCP_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SCP_right4_augmented[[".resid"]])
-```
 
 #-------SLFI
 #*Left
@@ -2522,25 +1854,6 @@ SLF_I_leftmodel_comp4 <- anova(model_SLF_I_left5, model_SLF_I_left6)
 SLF_I_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_I_left4)
-#Model 5
-model_SLF_I_left4_augmented <- augment(model_SLF_I_left4)
-p1 <-ggplot(model_SLF_I_left4_augmented, aes(age_c, SLF_I_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_I_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2584,25 +1897,6 @@ SLF_I_rightmodel_comp4 <- anova(model_SLF_I_right5, model_SLF_I_right6)
 SLF_I_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_I_right4)
-#Model 5
-model_SLF_I_right4_augmented <- augment(model_SLF_I_right4)
-p1 <-ggplot(model_SLF_I_right4_augmented, aes(age_c, SLF_I_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_I_right4_augmented[[".resid"]])
-```
 
 #-------SLFII
 #*Left
@@ -2648,25 +1942,6 @@ SLF_II_leftmodel_comp4 <- anova(model_SLF_II_left5, model_SLF_II_left6)
 SLF_II_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_II_left4)
-#Model 5
-model_SLF_II_left4_augmented <- augment(model_SLF_II_left4)
-p1 <-ggplot(model_SLF_II_left4_augmented, aes(age_c, SLF_II_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_II_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2710,25 +1985,6 @@ SLF_II_rightmodel_comp4 <- anova(model_SLF_II_right5, model_SLF_II_right6)
 SLF_II_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_II_right4)
-#Model 5
-model_SLF_II_right4_augmented <- augment(model_SLF_II_right4)
-p1 <-ggplot(model_SLF_II_right4_augmented, aes(age_c, SLF_II_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_II_right4_augmented[[".resid"]])
-```
 
 #-------SLFIII
 #*Left
@@ -2774,25 +2030,7 @@ SLF_III_leftmodel_comp4 <- anova(model_SLF_III_left5, model_SLF_III_left6)
 SLF_III_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_III_left4)
-#Model 5
-model_SLF_III_left4_augmented <- augment(model_SLF_III_left4)
-p1 <-ggplot(model_SLF_III_left4_augmented, aes(age_c, SLF_III_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_III_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -2836,25 +2074,6 @@ SLF_III_rightmodel_comp4 <- anova(model_SLF_III_right5, model_SLF_III_right6)
 SLF_III_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_SLF_III_right4)
-#Model 5
-model_SLF_III_right4_augmented <- augment(model_SLF_III_right4)
-p1 <-ggplot(model_SLF_III_right4_augmented, aes(age_c, SLF_III_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_SLF_III_right4_augmented[[".resid"]])
-```
 
 #-------ST_FO
 #*Left
@@ -2900,25 +2119,6 @@ ST_FO_leftmodel_comp4 <- anova(model_ST_FO_left5, model_ST_FO_left6)
 ST_FO_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_FO_left4)
-#Model 5
-model_ST_FO_left4_augmented <- augment(model_ST_FO_left4)
-p1 <-ggplot(model_ST_FO_left4_augmented, aes(age_c, ST_FO_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_FO_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -2963,25 +2163,6 @@ ST_FO_rightmodel_comp4 <- anova(model_ST_FO_right5, model_ST_FO_right6)
 ST_FO_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_FO_right4)
-#Model 5
-model_ST_FO_right4_augmented <- augment(model_ST_FO_right4)
-p1 <-ggplot(model_ST_FO_right4_augmented, aes(age_c, ST_FO_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_FO_right4_augmented[[".resid"]])
-```
 
 #-------ST_OCC
 #*Left
@@ -3027,25 +2208,6 @@ ST_OCC_leftmodel_comp4 <- anova(model_ST_OCC_left5, model_ST_OCC_left6)
 ST_OCC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_OCC_left4)
-#Model 5
-model_ST_OCC_left4_augmented <- augment(model_ST_OCC_left4)
-p1 <-ggplot(model_ST_OCC_left4_augmented, aes(age_c, ST_OCC_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_OCC_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -3090,25 +2252,6 @@ ST_OCC_rightmodel_comp4 <- anova(model_ST_OCC_right5, model_ST_OCC_right6)
 ST_OCC_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_OCC_right4)
-#Model 5
-model_ST_OCC_right4_augmented <- augment(model_ST_OCC_right4)
-p1 <-ggplot(model_ST_OCC_right4_augmented, aes(age_c, ST_OCC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_OCC_right4_augmented[[".resid"]])
-```
 
 
 #-------ST_PAR
@@ -3155,25 +2298,7 @@ ST_PAR_leftmodel_comp4 <- anova(model_ST_PAR_left5, model_ST_PAR_left6)
 ST_PAR_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PAR_left4)
-#Model 5
-model_ST_PAR_left4_augmented <- augment(model_ST_PAR_left4)
-p1 <-ggplot(model_ST_PAR_left4_augmented, aes(age_c, ST_PAR_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PAR_left4_augmented[[".resid"]])
-```
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -3217,25 +2342,6 @@ ST_PAR_rightmodel_comp4 <- anova(model_ST_PAR_right5, model_ST_PAR_right6)
 ST_PAR_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PAR_right4)
-#Model 5
-model_ST_PAR_right4_augmented <- augment(model_ST_PAR_right4)
-p1 <-ggplot(model_ST_PAR_right4_augmented, aes(age_c, ST_PAR_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PAR_right4_augmented[[".resid"]])
-```
 
 #-------ST_POSTC
 #*Left
@@ -3281,25 +2387,6 @@ ST_POSTC_leftmodel_comp4 <- anova(model_ST_POSTC_left5, model_ST_POSTC_left6)
 ST_POSTC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_POSTC_left4)
-#Model 5
-model_ST_POSTC_left4_augmented <- augment(model_ST_POSTC_left4)
-p1 <-ggplot(model_ST_POSTC_left4_augmented, aes(age_c, ST_POSTC_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_POSTC_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -3344,25 +2431,6 @@ ST_POSTC_rightmodel_comp4 <- anova(model_ST_POSTC_right5, model_ST_POSTC_right6)
 ST_POSTC_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_POSTC_right4)
-#Model 5
-model_ST_POSTC_right4_augmented <- augment(model_ST_POSTC_right4)
-p1 <-ggplot(model_ST_POSTC_right4_augmented, aes(age_c, ST_POSTC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_POSTC_right4_augmented[[".resid"]])
-```
 
 #-------ST_PREC
 #*Left
@@ -3408,25 +2476,7 @@ ST_PREC_leftmodel_comp4 <- anova(model_ST_PREC_left5, model_ST_PREC_left6)
 ST_PREC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREC_left4)
-#Model 5
-model_ST_PREC_left4_augmented <- augment(model_ST_PREC_left4)
-p1 <-ggplot(model_ST_PREC_left4_augmented, aes(age_c, ST_PREC_left, colour = sex))+
-  geom_point()
 
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREC_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -3471,25 +2521,6 @@ ST_PREC_rightmodel_comp4 <- anova(model_ST_PREC_right5, model_ST_PREC_right6)
 ST_PREC_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREC_right4)
-#Model 5
-model_ST_PREC_right4_augmented <- augment(model_ST_PREC_right4)
-p1 <-ggplot(model_ST_PREC_right4_augmented, aes(age_c, ST_PREC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREC_right4_augmented[[".resid"]])
-```
 
 #-------ST_PREF
 #*Left
@@ -3535,25 +2566,6 @@ ST_PREF_leftmodel_comp4 <- anova(model_ST_PREF_left5, model_ST_PREF_left6)
 ST_PREF_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREF_left4)
-#Model 5
-model_ST_PREF_left4_augmented <- augment(model_ST_PREF_left4)
-p1 <-ggplot(model_ST_PREF_left4_augmented, aes(age_c, ST_PREF_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREF_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -3596,26 +2608,6 @@ ST_PREF_rightmodel_comp3
 
 ST_PREF_rightmodel_comp4 <- anova(model_ST_PREF_right5, model_ST_PREF_right6)
 ST_PREF_rightmodel_comp4
-```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREF_right4)
-#Model 5
-model_ST_PREF_right4_augmented <- augment(model_ST_PREF_right4)
-p1 <-ggplot(model_ST_PREF_right4_augmented, aes(age_c, ST_PREF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREF_right4_augmented[[".resid"]])
 ```
 
 
@@ -3663,26 +2655,6 @@ ST_PREM_leftmodel_comp4 <- anova(model_ST_PREM_left5, model_ST_PREM_left6)
 ST_PREM_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREM_left4)
-#Model 5
-model_ST_PREM_left4_augmented <- augment(model_ST_PREM_left4)
-p1 <-ggplot(model_ST_PREM_left4_augmented, aes(age_c, ST_PREM_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREM_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -3726,25 +2698,6 @@ ST_PREM_rightmodel_comp4 <- anova(model_ST_PREM_right5, model_ST_PREM_right6)
 ST_PREM_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_ST_PREM_right4)
-#Model 5
-model_ST_PREM_right4_augmented <- augment(model_ST_PREM_right4)
-p1 <-ggplot(model_ST_PREM_right4_augmented, aes(age_c, ST_PREM_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_ST_PREM_right4_augmented[[".resid"]])
-```
 
 #-------STR
 #*Left
@@ -3790,25 +2743,6 @@ STR_leftmodel_comp4 <- anova(model_STR_left5, model_STR_left6)
 STR_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_STR_left4)
-#Model 5
-model_STR_left4_augmented <- augment(model_STR_left4)
-p1 <-ggplot(model_STR_left4_augmented, aes(age_c, STR_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_STR_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -3853,25 +2787,6 @@ STR_rightmodel_comp4 <- anova(model_STR_right5, model_STR_right6)
 STR_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_STR_right4)
-#Model 5
-model_STR_right4_augmented <- augment(model_STR_right4)
-p1 <-ggplot(model_STR_right4_augmented, aes(age_c, STR_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_STR_right4_augmented[[".resid"]])
-```
 
 #-------T_OCC
 #*Left
@@ -3917,26 +2832,6 @@ T_OCC_leftmodel_comp4 <- anova(model_T_OCC_left5, model_T_OCC_left6)
 T_OCC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_OCC_left4)
-#Model 5
-model_T_OCC_left4_augmented <- augment(model_T_OCC_left4)
-p1 <-ggplot(model_T_OCC_left4_augmented, aes(age_c, T_OCC_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_OCC_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -3978,26 +2873,6 @@ T_OCC_rightmodel_comp3
 
 T_OCC_rightmodel_comp4 <- anova(model_T_OCC_right5, model_T_OCC_right6)
 T_OCC_rightmodel_comp4
-```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_OCC_right4)
-#Model 5
-model_T_OCC_right4_augmented <- augment(model_T_OCC_right4)
-p1 <-ggplot(model_T_OCC_right4_augmented, aes(age_c, T_OCC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_OCC_right4_augmented[[".resid"]])
 ```
 
 #-------T_PAR
@@ -4044,25 +2919,6 @@ T_PAR_leftmodel_comp4 <- anova(model_T_PAR_left5, model_T_PAR_left6)
 T_PAR_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PAR_left4)
-#Model 5
-model_T_PAR_left4_augmented <- augment(model_T_PAR_left4)
-p1 <-ggplot(model_T_PAR_left4_augmented, aes(age_c, T_PAR_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PAR_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -4107,25 +2963,6 @@ T_PAR_rightmodel_comp4 <- anova(model_T_PAR_right5, model_T_PAR_right6)
 T_PAR_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PAR_right4)
-#Model 5
-model_T_PAR_right4_augmented <- augment(model_T_PAR_right4)
-p1 <-ggplot(model_T_PAR_right4_augmented, aes(age_c, T_PAR_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PAR_right4_augmented[[".resid"]])
-```
 
 #-------T_POSTC
 #*Left
@@ -4171,26 +3008,6 @@ T_POSTC_leftmodel_comp4 <- anova(model_T_POSTC_left5, model_T_POSTC_left6)
 T_POSTC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_POSTC_left4)
-#Model 5
-model_T_POSTC_left4_augmented <- augment(model_T_POSTC_left4)
-p1 <-ggplot(model_T_POSTC_left4_augmented, aes(age_c, T_POSTC_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_POSTC_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -4232,26 +3049,6 @@ T_POSTC_rightmodel_comp3
 
 T_POSTC_rightmodel_comp4 <- anova(model_T_POSTC_right5, model_T_POSTC_right6)
 T_POSTC_rightmodel_comp4
-```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_POSTC_right4)
-#Model 5
-model_T_POSTC_right4_augmented <- augment(model_T_POSTC_right4)
-p1 <-ggplot(model_T_POSTC_right4_augmented, aes(age_c, T_POSTC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_POSTC_right4_augmented[[".resid"]])
 ```
 
 #-------T_PREC
@@ -4298,25 +3095,6 @@ T_PREC_leftmodel_comp4 <- anova(model_T_PREC_left5, model_T_PREC_left6)
 T_PREC_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREC_left4)
-#Model 5
-model_T_PREC_left4_augmented <- augment(model_T_PREC_left4)
-p1 <-ggplot(model_T_PREC_left4_augmented, aes(age_c, T_PREC_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREC_left4_augmented[[".resid"]])
-```
 
 #*Right
 #Linear Model
@@ -4361,25 +3139,6 @@ T_PREC_rightmodel_comp4 <- anova(model_T_PREC_right5, model_T_PREC_right6)
 T_PREC_rightmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREC_right4)
-#Model 5
-model_T_PREC_right4_augmented <- augment(model_T_PREC_right4)
-p1 <-ggplot(model_T_PREC_right4_augmented, aes(age_c, T_PREC_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREC_right4_augmented[[".resid"]])
-```
 
 #-------T_PREF
 #*Left
@@ -4425,26 +3184,6 @@ T_PREF_leftmodel_comp4 <- anova(model_T_PREF_left5, model_T_PREF_left6)
 T_PREF_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREF_left4)
-#Model 5
-model_T_PREF_left4_augmented <- augment(model_T_PREF_left4)
-p1 <-ggplot(model_T_PREF_left4_augmented, aes(age_c, T_PREF_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREF_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -4487,27 +3226,6 @@ T_PREF_rightmodel_comp3
 T_PREF_rightmodel_comp4 <- anova(model_T_PREF_right5, model_T_PREF_right6)
 T_PREF_rightmodel_comp4
 ```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREF_right4)
-#Model 5
-model_T_PREF_right4_augmented <- augment(model_T_PREF_right4)
-p1 <-ggplot(model_T_PREF_right4_augmented, aes(age_c, T_PREF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREF_right4_augmented[[".resid"]])
-```
-
 
 #-------T_PREM
 #*Left
@@ -4553,26 +3271,6 @@ T_PREM_leftmodel_comp4 <- anova(model_T_PREM_left5, model_T_PREM_left6)
 T_PREM_leftmodel_comp4
 ```
 
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREM_left4)
-#Model 5
-model_T_PREM_left4_augmented <- augment(model_T_PREM_left4)
-p1 <-ggplot(model_T_PREM_left4_augmented, aes(age_c, T_PREM_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREM_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -4615,27 +3313,6 @@ T_PREM_rightmodel_comp3
 T_PREM_rightmodel_comp4 <- anova(model_T_PREM_right5, model_T_PREM_right6)
 T_PREM_rightmodel_comp4
 ```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_T_PREM_right4)
-#Model 5
-model_T_PREM_right4_augmented <- augment(model_T_PREM_right4)
-p1 <-ggplot(model_T_PREM_right4_augmented, aes(age_c, T_PREM_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_T_PREM_right4_augmented[[".resid"]])
-```
-
 
 #-------UF
 #*Left
@@ -4681,43 +3358,6 @@ UF_leftmodel_comp4 <- anova(model_UF_left5, model_UF_left6)
 UF_leftmodel_comp4
 ```
 
-#Plotting 1
-
-```{r}
-#fit <- lm(mpg~poly(wt,3,raw=TRUE),mtcars)
-model_UF_left4 <- lme(UF_left~ poly(age_c, 2), data = controls, random = ~1|id)
-
-#plot(mpg~wt,mtcars)
-plot(UF_left~age_c, controls)
-
-#curve(predict(fit,newdata=data.frame(wt=x)),add=T)
-curve(predict(model_UF_left4, newdata=data.frame(age_c=x)),add=T)
-
-
-ggplot(data = controls, aes(x = age_c, y = UF_left)) + geom_point() + geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1)
-ggplot(data = controls, aes(x = age_c, y = UF_right)) + geom_point() + geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1)
-```
-
-#Plotting 2
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_UF_left4)
-#Model 5
-model_UF_left4_augmented <- augment(model_UF_left4)
-p1 <-ggplot(model_UF_left4_augmented, aes(age_c, UF_left, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_UF_left4_augmented[[".resid"]])
-```
-
 #*Right
 #Linear Model
 ```{r,echo=FALSE, warning=FALSE, message=FALSE}
@@ -4759,26 +3399,6 @@ UF_rightmodel_comp3
 
 UF_rightmodel_comp4 <- anova(model_UF_right5, model_UF_right6)
 UF_rightmodel_comp4
-```
-
-#Plotting
-```{r,echo=FALSE, warning=FALSE, message=FALSE}
-summary(model_UF_right4)
-#Model 5
-model_UF_right4_augmented <- augment(model_UF_right4)
-p1 <-ggplot(model_UF_right4_augmented, aes(age_c, UF_right, colour = sex))+
-  geom_point()
-
-
-p1 + stat_smooth(method="loess", show.legend = TRUE) + 
-  geom_hline(yintercept=2.207464, col="red", linetype="dashed") +
-  xlab("Age") + 
-  ylab("T1w/T2w Ratio") + 
-  ggtitle("White Matter Myelin Development of AF left") + 
-  labs(fill = "Sex")+
-  theme_minimal()
-
-qqnorm(model_UF_right4_augmented[[".resid"]])
 ```
 
 #*************P-Val Corrections
