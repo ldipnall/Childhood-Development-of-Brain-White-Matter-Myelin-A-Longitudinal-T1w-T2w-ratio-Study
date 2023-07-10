@@ -1,0 +1,597 @@
+---
+title: "p1_visualisations"
+author: "Lilly Dipnall"
+date: "12/02/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling")
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+setwd("/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling")
+```
+
+#Load Packages
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggrepel)
+library(tidyverse)
+library(ggplot2)
+library(ggbeeswarm)
+library(vioplot)
+library(table1)
+library(tableone)
+library(naniar)
+library(expss)
+library(Hmisc)
+library(gt)
+library(glue)
+library(devtools)
+library(ggpubr)
+library(broom)
+library(purrr)
+library(corrplot)
+library(lme4)
+library(lmerTest)
+library(sjstats)
+library(optimx)
+library(plm)
+library(broom.mixed)
+library(Matrix)
+library(sjPlot)
+library(psych)
+library(boot)
+library(pscl)
+library(cowplot)
+library(sjmisc)
+library(effects)
+library(nlme)
+
+```
+
+#Load Data
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+data <- read.csv("/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/nicap_data_long_calibrated.csv")
+dim(data)
+head(data)
+
+data$sex <- as.factor(data$sex)
+controls <- data %>%
+  dplyr::filter(data$group_dich == "0")
+
+controls <- controls %>% mutate(group = as.factor(group_dich),            
+                              wave_nicap = as.factor(wave_nicap),
+                              sex = as.factor(sex)) %>%
+  mutate(age_c = age - mean(age))
+```
+
+#Setting Variables
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+#General Variables
+sex <- factor(controls$sex)
+age <- as.numeric(controls$age)
+group <- factor(controls$group_dich)
+age_c <- as.numeric(controls$age_c)
+
+#White Matter Tracts
+AF_right<-as.numeric(controls$AF_right)
+AF_left<-as.numeric(controls$AF_left)
+ATR_left<-as.numeric(controls$ATR_left)
+ATR_right<-as.numeric(controls$ATR_right)
+CA<-as.numeric(controls$CA)
+CC<-as.numeric(controls$CC)
+CC1<-as.numeric(controls$CC1)
+CC2<-as.numeric(controls$CC2)
+CC3<-as.numeric(controls$CC3)
+CC4<-as.numeric(controls$CC4)
+CC5<-as.numeric(controls$CC5)
+CC6<-as.numeric(controls$CC6)
+CC6<-as.numeric(controls$CC6)
+CC7<-as.numeric(controls$CC7)
+CG_right<-as.numeric(controls$CG_right)
+CG_left<-as.numeric(controls$CG_left)
+CST_right<-as.numeric(controls$CST_right)
+CST_left<-as.numeric(controls$CST_left)
+FPT_right<-as.numeric(controls$FPT_right)
+FPT_left<-as.numeric(controls$FPT_left)
+FX_right<-as.numeric(controls$FX_right)
+FX_left<-as.numeric(controls$FX_left)
+ICP_right<-as.numeric(controls$ICP_right)
+ICP_left<-as.numeric(controls$ICP_left)
+IFO_right<-as.numeric(controls$IFO_right)
+IFO_left<-as.numeric(controls$IFO_left)
+ILF_right<-as.numeric(controls$ILF_right)
+ILF_left<-as.numeric(controls$ILF_left)
+MCP<-as.numeric(controls$MCP)
+MLF_right<-as.numeric(controls$MLF_right)
+MLF_left<-as.numeric(controls$MLF_left)
+OR_right<-as.numeric(controls$OR_right)
+OR_left<-as.numeric(controls$OR_left)
+POPT_right<-as.numeric(controls$POPT_right)
+POPT_left<-as.numeric(controls$POPT_left)
+SCP_right<-as.numeric(controls$SCP_right)
+SCP_left<-as.numeric(controls$SCP_left)
+SLF_I_right<-as.numeric(controls$SLF_I_right)
+SLF_I_left<-as.numeric(controls$SLF_I_left)
+SLF_II_right<-as.numeric(controls$SLF_II_right)
+SLF_II_left<-as.numeric(controls$SLF_II_left)
+SLF_III_right<-as.numeric(controls$SLF_III_right)
+SLF_III_left<-as.numeric(controls$SLF_III_left)
+ST_FO_right<-as.numeric(controls$ST_FO_right)
+ST_FO_left<-as.numeric(controls$ST_FO_left)
+ST_OCC_left<-as.numeric(controls$ST_OCC_left)
+ST_OCC_right<-as.numeric(controls$ST_OCC_right)
+ST_PAR_right<-as.numeric(controls$ST_PAR_right)
+ST_PAR_left<-as.numeric(controls$ST_PAR_left)
+ST_POSTC_right<-as.numeric(controls$ST_POSTC_right)
+ST_POSTC_left<-as.numeric(controls$ST_POSTC_left)
+ST_PREC_right<-as.numeric(controls$ST_PREC_right)
+ST_PREC_left<-as.numeric(controls$ST_PREC_left)
+ST_PREF_right<-as.numeric(controls$ST_PREF_right)
+ST_PREF_left<-as.numeric(controls$ST_PREF_left)
+ST_PREM_right<-as.numeric(controls$ST_PREM_right)
+ST_PREM_left<-as.numeric(controls$ST_PREM_left)
+STR_right<-as.numeric(controls$STR_right)
+STR_left<-as.numeric(controls$STR_left)
+T_OCC_right<-as.numeric(controls$T_OCC_right)
+T_OCC_left<-as.numeric(controls$T_OCC_left)
+T_PAR_right<-as.numeric(controls$T_PAR_right)
+T_PAR_left<-as.numeric(controls$T_PAR_left)
+T_POSTC_right<-as.numeric(controls$T_POSTC_right)
+T_POSTC_left<-as.numeric(controls$T_POSTC_left)
+T_PREC_right<-as.numeric(controls$T_PREC_right)
+T_PREC_left<-as.numeric(controls$T_PREC_left)
+T_PREF_right<-as.numeric(controls$T_PREF_right)
+T_PREF_left<-as.numeric(controls$T_PREF_left)
+T_PREM_right<-as.numeric(controls$T_PREM_right)
+T_PREM_left<-as.numeric(controls$T_PREM_left)
+UF_right<-as.numeric(controls$UF_right)
+UF_left<-as.numeric(controls$UF_left)
+```
+
+#Table
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+table1 <- table1(~ age_c + sex | wave_nicap, data=controls)
+table1
+
+counts <- data.frame(table(controls$id))
+counts_table <- table1(~ as.factor(Freq) | Freq, data=counts)
+counts_table
+```
+
+#Descriptives Table of WM Tracts
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+table2 <- table1(~ AF_right +
+AF_left +
+ATR_left +
+ATR_right +
+CA +
+CC +
+CC1 +
+CC2 +
+CC3 +
+CC4 +
+CC5 +
+CC6 +
+CC6 +
+CC7 +
+CG_right +
+CG_left +
+CST_right +
+CST_left +
+FPT_right +
+FPT_left +
+FX_right +
+FX_left +
+ICP_right +
+ICP_left +
+IFO_right +
+IFO_left +
+ILF_right +
+ILF_left +
+MCP +
+MLF_right +
+MLF_left +
+OR_right +
+OR_left +
+POPT_right +
+POPT_left +
+SCP_right +
+SCP_left +
+SLF_I_right +
+SLF_I_left +
+SLF_II_right +
+SLF_II_left +
+SLF_III_right +
+SLF_III_left +
+ST_FO_right +
+ST_FO_left +
+ST_OCC_left +
+ST_OCC_right +
+ST_PAR_right +
+ST_PAR_left +
+ST_POSTC_right +
+ST_POSTC_left +
+ST_PREC_right +
+ST_PREC_left +
+ST_PREF_right +
+ST_PREF_left +
+ST_PREM_right +
+ST_PREM_left +
+STR_right +
+STR_left +
+T_OCC_right +
+T_OCC_left +
+T_PAR_right +
+T_PAR_left +
+T_POSTC_right +
+T_POSTC_left +
+T_PREC_right +
+T_PREC_left +
+T_PREF_right +
+T_PREF_left +
+T_PREM_right +
+T_PREM_left +
+UF_right +
+UF_left | wave_nicap, data=controls)
+table2
+```
+
+#Age Visualisations
+```{r}
+df_plot <- controls %>% mutate(age = round(as.numeric(age),2)) %>% arrange(age) %>%
+  mutate(id = factor(id, unique(id)))
+
+plot_age <- ggplot(df_plot, aes(y=id, x=age, group=id, color = sex))+
+  geom_line(size=.6,alpha=0.6) + 
+  ylab("Participants") +  
+  xlab("Age") +       
+  geom_point(size=1) +
+  theme_bw() +
+  theme_minimal(base_size = 18,
+                base_family = "Arial") +
+  theme(axis.line = element_line(colour = "black"),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+plot_age
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "age_distrib.png")
+```
+
+#Age Trajectory Visualisations
+```{r}
+# Top 10 fastest developing tracts
+#1 Right SLF II
+p_rslf2 <- ggplot(data = controls, aes(x = age, y = SLF_II_right)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Right Superior Longitudinal Fasiculus II") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "red3") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_rslf2
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "SLF_II_right_development.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#2 Left AF
+p_laf <- ggplot(data = controls, aes(x = age, y = AF_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Arcuate Fasciculus") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "royalblue") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_laf
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_laf.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#3 Left ST OCC
+p_lstocc <- ggplot(data = controls, aes(x = age, y = ST_OCC_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Striato-occipital Tract") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "chartreuse3") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_lstocc
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_lstocc.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#4 Left SLF II
+p_lslf2 <- ggplot(data = controls, aes(x = age, y = SLF_II_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Superior Longitudinal Fasiculus II") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "red3") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_lslf2
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "SLF_II_left_development.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#5 CC 6
+p_cc6 <- ggplot(data = controls, aes(x = age, y = CC6)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Corpus Callosum: Isthmus") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "mediumpurple") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_cc6
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc6.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#6 Left SLF I
+p_lslf1 <- ggplot(data = controls, aes(x = age, y = SLF_I_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Superior Longitudinal Fasiculus I") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "tan2") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_lslf1
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "SLF_I_left_development.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#7 CC4 
+p_cc4 <- ggplot(data = controls, aes(x = age, y = CC4)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Corpus Callosum: Anterior Midbody - Primary Motor") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "violetred2") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_cc4
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc4.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#8 CC7
+p_cc7 <- ggplot(data = controls, aes(x = age, y = CC7)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Corpus Callosum: Splenium") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "orchid") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_cc7
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc7.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#9 Left ILF
+p_lilf <- ggplot(data = controls, aes(x = age, y = SLF_I_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Inferior Longitudinal Fasiculus") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "cyan1") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_lilf
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_lilf.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#10 Left T OCC
+p_ltocc <- ggplot(data = controls, aes(x = age, y = ST_OCC_left)) + 
+  geom_point() + 
+  geom_line(aes(group=factor(id))) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Left Thalmo-occipital Tract") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "yellow2") + 
+  theme(plot.title= element_text(size=24,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_ltocc
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_ltocc.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+
+```
+
+```{r}
+#CC1 - red rostrum
+p_cc1_sex <- ggplot(data = controls, aes(x = age, y = CC1, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "CC: Rostrum", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("red", "red4")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_cc1_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc1_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#CC2 - Blue genu
+p_cc2_sex <- ggplot(data = controls, aes(x = age, y = CC2, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "CC: Genu", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("darkblue", "royalblue1")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_cc2_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc2_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+
+#CC3 - Green rostral body premotor
+p_cc3_sex <- ggplot(data = controls, aes(x = age, y = CC3, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "CC: Rostral Body", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("green1", "green4")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_cc3_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc3_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#FPT right - Yellow frontopontine tract
+p_fpt_r_sex <- ggplot(data = controls, aes(x = age, y = FPT_right, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Fronto-pontine Right", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("yellow", "yellow4")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_fpt_r_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_fpt_r_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#ICP right - Orange inferior cerebellar peduncle 
+icp_r_colours <- c("sienna1", "sienna2", "sienna4")
+p_icp_r_sex <- ggplot(data = controls, aes(x = age, y = ICP_right, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Inferior Cerebellar Peduncle Right", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("sienna1", "sienna3")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_icp_r_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_icp_r_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#ICP left - Purple inferior celebellar peduncle
+p_icp_l_sex <- ggplot(data = controls, aes(x = age, y = ICP_left, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Inferior Cerebellar Peduncle Left", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("mediumpurple1", "purple3")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_icp_l_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_icp_l_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#STFO left - Pink striato fronto orbital
+p_stfo_l_sex <- ggplot(data = controls, aes(x = age, y = ST_FO_left, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Striato-fronto-orbital Left", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("hotpink", "hotpink4")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_stfo_l_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_stfo_l_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#STFO right - Brown Fix colours striato fronto orbital
+p_stfo_r_sex <- ggplot(data = controls, aes(x = age, y = ST_FO_right, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Striato-fronto-orbital Right", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("sandybrown", "saddlebrown")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_stfo_r_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_stfo_r_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#TOCC right - Turquoise thalmo-occipital
+p_tocc_r_sex <- ggplot(data = controls, aes(x = age, y = T_OCC_right, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Thalamo-occipital Right", colour = "Sex") + 
+  geom_smooth(aes(color = sex, fill = group), method = 'lm', formula = y ~ x + I(x^2), size = 3, alpha = 0.3) +
+  scale_colour_manual(labels = c("Male", "Female"), values = c("turquoise1", "turquoise4")) +
+  scale_fill_manual(values = c("grey", "grey")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 22,
+                base_family = "Arial") 
+p_tocc_r_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_tocc_r_sex.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+```
+
+#Age*Sex Trajectory Visualisations
+```{r}
+#CC1 rostrum
+p_cc1_sex <- ggplot(data = controls, aes(x = age, y = CC1, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "Corpus Callosum: by Sex", colour = "Sex") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1) +
+  scale_colour_manual(values = c("red", "red4")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_cc1_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc1.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#CC2 genu
+p_cc2_sex <- ggplot(data = controls, aes(x = age, y = CC2, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "T1w/T2w-ratio Development of CC2 by Sex", colour = "Sex") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1) +
+  scale_colour_manual(values = c("yellow", "yellow4")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_cc2_sex
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc2.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+#CC3 rostral body - premotor
+#FPT right
+#ICP right
+#ICP left
+#STFO left
+#STFO right 
+#TOCC right
+
+#FPT right
+p_rfpt_sex <- ggplot(data = controls, aes(x = age, y = FPT_right, group = sex, colour = sex)) + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "T1w/T2w-ratio Development of Right Fronto-pontine Tract by Sex", colour = "Sex") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1) +
+  scale_colour_manual(values = c("yellow", "yellow4")) +
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 24,
+                base_family = "Arial") 
+p_rfpt_sex
+
+scale_fill_manual(name = "sex", labels = c("0", "1"), values = c("red", "red4"))
+
+
+ggplot(data = controls, aes(x = age, y = ICP_right, label = id, colour = sex)) + geom_point() + geom_text(hjust=0, vjust=0) + geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 1)
+
+p_rfpt_sex_fig2 <- ggplot(controls, aes(x=age, y=FPT_right, fill=sex))+
+  geom_point(shape=21) +
+  geom_smooth(method="lm",
+              formula = y ~ x + I(x^2),
+              color="black",
+              size=0.5)+
+  facet_grid(~sex) +
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "T1w/T2w-ratio Development of Right Fronto-pontine Tract by Sex")
+p_rfpt_sex_fig2
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_rfpt_sex_fig2.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+
+p_cc7_fig2 <- ggplot(data = controls, aes(x = age, y = CC7)) + 
+  geom_point() + 
+  labs(y = "T1w/T2w Ratio", x = "Age", title = "T1w/T2w-ratio Development of Corpus Callosum: Splenium") + 
+  geom_smooth(method = 'lm', formula = y ~ x + I(x^2), size = 3, colour = "blue4") + 
+  theme(plot.title= element_text(size=12,color="black",face="bold",family = "Tahoma")) +
+  theme_cowplot() + 
+  theme_minimal(base_size = 12,
+                base_family = "Arial") 
+p_cc7_fig2
+ggsave(path = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling/P1", file = "p_cc7_fig2.png", width = 10, height = 7, dpi = 300, units = "in", device='png')
+```
