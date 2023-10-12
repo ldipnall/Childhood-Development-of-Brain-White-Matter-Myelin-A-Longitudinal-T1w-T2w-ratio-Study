@@ -1,0 +1,2254 @@
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("knitr")
+opts_knit$set(root.dir = "/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling")
+```
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+setwd("/Users/cogld/Documents/Thesis/imaging/longitudinal_modelling")
+```
+
+
+#Load Packages
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(lme4)
+library(nlme)
+library(lmerTest)
+```
+
+#Load Data
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+data <- read.csv("/Users/cogld/Desktop/control_rerun/nicap_data_long_calibrated.csv")
+dim(data)
+head(data)
+
+data <- data %>%
+  dplyr::filter(data$group_bin == "Control")
+
+#Centering Variables 
+data <- data %>% 
+  mutate(age_c = age - mean(age))
+```
+
+#Setting Variables
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+#General Variables
+data$age_c <- as.numeric(data$age_c)
+
+#White Matter Tracts
+AF_right<-as.numeric(data$AF_right)
+AF_left<-as.numeric(data$AF_left)
+ATR_left<-as.numeric(data$ATR_left)
+ATR_right<-as.numeric(data$ATR_right)
+CA<-as.numeric(data$CA)
+CC<-as.numeric(data$CC)
+CC1<-as.numeric(data$CC1)
+CC2<-as.numeric(data$CC2)
+CC3<-as.numeric(data$CC3)
+CC4<-as.numeric(data$CC4)
+CC5<-as.numeric(data$CC5)
+CC6<-as.numeric(data$CC6)
+CC6<-as.numeric(data$CC6)
+CC7<-as.numeric(data$CC7)
+CG_right<-as.numeric(data$CG_right)
+CG_left<-as.numeric(data$CG_left)
+CST_right<-as.numeric(data$CST_right)
+CST_left<-as.numeric(data$CST_left)
+FPT_right<-as.numeric(data$FPT_right)
+FPT_left<-as.numeric(data$FPT_left)
+FX_right<-as.numeric(data$FX_right)
+FX_left<-as.numeric(data$FX_left)
+ICP_right<-as.numeric(data$ICP_right)
+ICP_left<-as.numeric(data$ICP_left)
+IFO_right<-as.numeric(data$IFO_right)
+IFO_left<-as.numeric(data$IFO_left)
+ILF_right<-as.numeric(data$ILF_right)
+ILF_left<-as.numeric(data$ILF_left)
+MCP<-as.numeric(data$MCP)
+MLF_right<-as.numeric(data$MLF_right)
+MLF_left<-as.numeric(data$MLF_left)
+OR_right<-as.numeric(data$OR_right)
+OR_left<-as.numeric(data$OR_left)
+POPT_right<-as.numeric(data$POPT_right)
+POPT_left<-as.numeric(data$POPT_left)
+SCP_right<-as.numeric(data$SCP_right)
+SCP_left<-as.numeric(data$SCP_left)
+SLF_I_right<-as.numeric(data$SLF_I_right)
+SLF_I_left<-as.numeric(data$SLF_I_left)
+SLF_II_right<-as.numeric(data$SLF_II_right)
+SLF_II_left<-as.numeric(data$SLF_II_left)
+SLF_III_right<-as.numeric(data$SLF_III_right)
+SLF_III_left<-as.numeric(data$SLF_III_left)
+ST_FO_right<-as.numeric(data$ST_FO_right)
+ST_FO_left<-as.numeric(data$ST_FO_left)
+ST_OCC_left<-as.numeric(data$ST_OCC_left)
+ST_OCC_right<-as.numeric(data$ST_OCC_right)
+ST_PAR_right<-as.numeric(data$ST_PAR_right)
+ST_PAR_left<-as.numeric(data$ST_PAR_left)
+ST_POSTC_right<-as.numeric(data$ST_POSTC_right)
+ST_POSTC_left<-as.numeric(data$ST_POSTC_left)
+ST_PREC_right<-as.numeric(data$ST_PREC_right)
+ST_PREC_left<-as.numeric(data$ST_PREC_left)
+ST_PREF_right<-as.numeric(data$ST_PREF_right)
+ST_PREF_left<-as.numeric(data$ST_PREF_left)
+ST_PREM_right<-as.numeric(data$ST_PREM_right)
+ST_PREM_left<-as.numeric(data$ST_PREM_left)
+STR_right<-as.numeric(data$STR_right)
+STR_left<-as.numeric(data$STR_left)
+T_OCC_right<-as.numeric(data$T_OCC_right)
+T_OCC_left<-as.numeric(data$T_OCC_left)
+T_PAR_right<-as.numeric(data$T_PAR_right)
+T_PAR_left<-as.numeric(data$T_PAR_left)
+T_POSTC_right<-as.numeric(data$T_POSTC_right)
+T_POSTC_left<-as.numeric(data$T_POSTC_left)
+T_PREC_right<-as.numeric(data$T_PREC_right)
+T_PREC_left<-as.numeric(data$T_PREC_left)
+T_PREF_right<-as.numeric(data$T_PREF_right)
+T_PREF_left<-as.numeric(data$T_PREF_left)
+T_PREM_right<-as.numeric(data$T_PREM_right)
+T_PREM_left<-as.numeric(data$T_PREM_left)
+UF_right<-as.numeric(data$UF_right)
+UF_left<-as.numeric(data$UF_left)
+```
+#---------------- Calibrated Data ----------------
+#Linear Age Models
+```{r,echo=FALSE, warning=FALSE, message=FALSE}
+model_AF_left_age2 <- lme(AF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_AF_right_age2 <- lme(AF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ATR_left_age2 <- lme(ATR_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ATR_right_age2 <- lme(ATR_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CA_age2 <- lme(CA~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC1_age2 <- lme(CC_1~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC2_age2 <- lme(CC_2~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC3_age2 <- lme(CC_3~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC4_age2 <- lme(CC_4~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC5_age2 <- lme(CC_5~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC6_age2 <- lme(CC_6~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CC7_age2 <- lme(CC_7~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CG_left_age2 <- lme(CG_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CG_right_age2 <- lme(CG_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CST_left_age2 <- lme(CST_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_CST_right_age2 <- lme(CST_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_FPT_left_age2 <- lme(FPT_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_FPT_right_age2 <- lme(FPT_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_FX_left_age2 <- lme(FX_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_FX_right_age2 <- lme(FX_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ICP_left_age2 <- lme(ICP_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ICP_right_age2 <- lme(ICP_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_IFO_left_age2 <- lme(IFO_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_IFO_right_age2 <- lme(IFO_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ILF_left_age2 <- lme(ILF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ILF_right_age2 <- lme(ILF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_MCP_age2 <- lme(MCP~ age_c, data = data, random = ~1|SID, method = "ML")
+model_MLF_left_age2 <- lme(MLF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_MLF_right_age2 <- lme(MLF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_OR_left_age2 <- lme(OR_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_OR_right_age2 <- lme(OR_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_POPT_left_age2 <- lme(POPT_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_POPT_right_age2 <- lme(POPT_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SCP_left_age2 <- lme(SCP_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SCP_right_age2 <- lme(SCP_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_I_left_age2 <- lme(SLF_I_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_I_right_age2 <- lme(SLF_I_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_II_left_age2 <- lme(SLF_II_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_II_right_age2 <- lme(SLF_II_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_III_left_age2 <- lme(SLF_III_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_SLF_III_right_age2 <- lme(SLF_III_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_FO_left_age2 <- lme(ST_FO_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_FO_right_age2 <- lme(ST_FO_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_left_age2 <- lme(ST_OCC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_right_age2 <- lme(ST_OCC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_left_age2 <- lme(ST_PAR_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_right_age2 <- lme(ST_PAR_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_left_age2 <- lme(ST_POSTC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_right_age2 <- lme(ST_POSTC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_left_age2 <- lme(ST_PREC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_right_age2 <- lme(ST_PREC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_left_age2 <- lme(ST_PREF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_right_age2 <- lme(ST_PREF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_left_age2 <- lme(ST_PREM_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_right_age2 <- lme(ST_PREM_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_STR_left_age2 <- lme(STR_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_STR_right_age2 <- lme(STR_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_OCC_left_age2 <- lme(T_OCC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_OCC_right_age2 <- lme(T_OCC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PAR_left_age2 <- lme(T_PAR_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PAR_right_age2 <- lme(T_PAR_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_left_age2 <- lme(T_POSTC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_right_age2 <- lme(T_POSTC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREC_left_age2 <- lme(T_PREC_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREC_right_age2 <- lme(T_PREC_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREF_left_age2 <- lme(T_PREF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREF_right_age2 <- lme(T_PREF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREM_left_age2 <- lme(T_PREM_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_T_PREM_right_age2 <- lme(T_PREM_right~ age_c, data = data, random = ~1|SID, method = "ML")
+model_UF_left_age2 <- lme(UF_left~ age_c, data = data, random = ~1|SID, method = "ML")
+model_UF_right_age2 <- lme(UF_right~ age_c, data = data, random = ~1|SID, method = "ML")
+```
+
+```{r}
+age2_tab1 <- sjPlot:: tab_model(model_AF_left_age2)
+age2_tab2 <- sjPlot:: tab_model(model_AF_right_age2)
+age2_tab3 <- sjPlot:: tab_model(model_ATR_left_age2)
+age2_tab4 <- sjPlot:: tab_model(model_ATR_right_age2)
+age2_tab5 <- sjPlot:: tab_model(model_CA_age2)
+age2_tab6 <- sjPlot:: tab_model(model_CC1_age2)
+age2_tab7 <- sjPlot:: tab_model(model_CC2_age2)
+age2_tab8 <- sjPlot:: tab_model(model_CC3_age2)
+age2_tab9 <- sjPlot:: tab_model(model_CC4_age2)
+age2_tab10 <- sjPlot:: tab_model(model_CC5_age2)
+age2_tab11 <- sjPlot:: tab_model(model_CC6_age2)
+age2_tab12 <- sjPlot:: tab_model(model_CC7_age2)
+age2_tab13 <- sjPlot:: tab_model(model_CG_left_age2)
+age2_tab14 <- sjPlot:: tab_model(model_CG_right_age2)
+age2_tab15 <- sjPlot:: tab_model(model_CST_left_age2)
+age2_tab16 <- sjPlot:: tab_model(model_CST_right_age2)
+age2_tab17 <- sjPlot:: tab_model(model_FPT_left_age2)
+age2_tab18 <- sjPlot:: tab_model(model_FPT_right_age2)
+age2_tab19 <- sjPlot:: tab_model(model_FX_left_age2)
+age2_tab20 <- sjPlot:: tab_model(model_FX_right_age2)
+age2_tab21 <- sjPlot:: tab_model(model_ICP_left_age2)
+age2_tab22 <- sjPlot:: tab_model(model_ICP_right_age2)
+age2_tab23 <- sjPlot:: tab_model(model_IFO_left_age2)
+age2_tab24 <- sjPlot:: tab_model(model_IFO_right_age2)
+age2_tab25 <- sjPlot:: tab_model(model_ILF_left_age2)
+age2_tab26 <- sjPlot:: tab_model(model_ILF_right_age2)
+age2_tab27 <- sjPlot:: tab_model(model_MCP_age2)
+age2_tab28 <- sjPlot:: tab_model(model_MLF_left_age2)
+age2_tab29 <- sjPlot:: tab_model(model_MLF_right_age2)
+age2_tab30 <- sjPlot:: tab_model(model_OR_left_age2)
+age2_tab31 <- sjPlot:: tab_model(model_OR_right_age2)
+age2_tab32 <- sjPlot:: tab_model(model_POPT_left_age2)
+age2_tab33 <- sjPlot:: tab_model(model_POPT_right_age2)
+age2_tab34 <- sjPlot:: tab_model(model_SCP_left_age2)
+age2_tab35 <- sjPlot:: tab_model(model_SCP_right_age2)
+age2_tab36 <- sjPlot:: tab_model(model_SLF_I_left_age2)
+age2_tab37 <- sjPlot:: tab_model(model_SLF_I_right_age2)
+age2_tab38 <- sjPlot:: tab_model(model_SLF_II_left_age2)
+age2_tab39 <- sjPlot:: tab_model(model_SLF_II_right_age2)
+age2_tab40 <- sjPlot:: tab_model(model_SLF_III_left_age2)
+age2_tab41 <- sjPlot:: tab_model(model_SLF_III_right_age2)
+age2_tab42 <- sjPlot:: tab_model(model_ST_FO_left_age2)
+age2_tab43 <- sjPlot:: tab_model(model_ST_FO_right_age2)
+age2_tab44 <- sjPlot:: tab_model(model_ST_OCC_left_age2)
+age2_tab45 <- sjPlot:: tab_model(model_ST_OCC_right_age2)
+age2_tab46 <- sjPlot:: tab_model(model_ST_PAR_left_age2)
+age2_tab47 <- sjPlot:: tab_model(model_ST_PAR_right_age2)
+age2_tab48 <- sjPlot:: tab_model(model_ST_POSTC_left_age2)
+age2_tab49 <- sjPlot:: tab_model(model_ST_POSTC_right_age2)
+age2_tab50 <- sjPlot:: tab_model(model_ST_PREC_left_age2)
+age2_tab51 <- sjPlot:: tab_model(model_ST_PREC_right_age2)
+age2_tab52 <- sjPlot:: tab_model(model_ST_PREF_left_age2)
+age2_tab53 <- sjPlot:: tab_model(model_ST_PREF_right_age2)
+age2_tab54 <- sjPlot:: tab_model(model_ST_PREM_left_age2)
+age2_tab55 <- sjPlot:: tab_model(model_ST_PREM_right_age2)
+age2_tab56 <- sjPlot:: tab_model(model_STR_left_age2)
+age2_tab57 <- sjPlot:: tab_model(model_STR_right_age2)
+age2_tab58 <- sjPlot:: tab_model(model_T_OCC_left_age2)
+age2_tab59 <- sjPlot:: tab_model(model_T_OCC_right_age2)
+age2_tab60 <- sjPlot:: tab_model(model_T_PAR_left_age2)
+age2_tab61 <- sjPlot:: tab_model(model_T_PAR_right_age2)
+age2_tab62 <- sjPlot:: tab_model(model_T_POSTC_left_age2)
+age2_tab63 <- sjPlot:: tab_model(model_T_POSTC_right_age2)
+age2_tab64 <- sjPlot:: tab_model(model_T_PREC_left_age2)
+age2_tab65 <- sjPlot:: tab_model(model_T_PREC_right_age2)
+age2_tab66 <- sjPlot:: tab_model(model_T_PREF_left_age2)
+age2_tab67 <- sjPlot:: tab_model(model_T_PREF_right_age2)
+age2_tab68 <- sjPlot:: tab_model(model_T_PREM_left_age2)
+age2_tab69 <- sjPlot:: tab_model(model_T_PREM_right_age2)
+age2_tab70 <- sjPlot:: tab_model(model_UF_left_age2)
+age2_tab71 <- sjPlot:: tab_model(model_UF_right_age2)
+```
+
+```{r}
+age2_tab1_df <- sjtable2df::mtab2df(mtab = age2_tab1, n_models = 1, output = "data.frame")
+age2_tab2_df <- sjtable2df::mtab2df(mtab = age2_tab2, n_models = 1, output = "data.frame")
+age2_tab3_df <- sjtable2df::mtab2df(mtab = age2_tab3, n_models = 1, output = "data.frame")
+age2_tab4_df <- sjtable2df::mtab2df(mtab = age2_tab4, n_models = 1, output = "data.frame")
+age2_tab5_df <- sjtable2df::mtab2df(mtab = age2_tab5, n_models = 1, output = "data.frame")
+age2_tab6_df <- sjtable2df::mtab2df(mtab = age2_tab6, n_models = 1, output = "data.frame")
+age2_tab7_df <- sjtable2df::mtab2df(mtab = age2_tab7, n_models = 1, output = "data.frame")
+age2_tab8_df <- sjtable2df::mtab2df(mtab = age2_tab8, n_models = 1, output = "data.frame")
+age2_tab9_df <- sjtable2df::mtab2df(mtab = age2_tab9, n_models = 1, output = "data.frame")
+age2_tab10_df <- sjtable2df::mtab2df(mtab = age2_tab10, n_models = 1, output = "data.frame")
+age2_tab11_df <- sjtable2df::mtab2df(mtab = age2_tab11, n_models = 1, output = "data.frame")
+age2_tab12_df <- sjtable2df::mtab2df(mtab = age2_tab12, n_models = 1, output = "data.frame")
+age2_tab13_df <- sjtable2df::mtab2df(mtab = age2_tab13, n_models = 1, output = "data.frame")
+age2_tab14_df <- sjtable2df::mtab2df(mtab = age2_tab14, n_models = 1, output = "data.frame")
+age2_tab15_df <- sjtable2df::mtab2df(mtab = age2_tab15, n_models = 1, output = "data.frame")
+age2_tab16_df <- sjtable2df::mtab2df(mtab = age2_tab16, n_models = 1, output = "data.frame")
+age2_tab17_df <- sjtable2df::mtab2df(mtab = age2_tab17, n_models = 1, output = "data.frame")
+age2_tab18_df <- sjtable2df::mtab2df(mtab = age2_tab18, n_models = 1, output = "data.frame")
+age2_tab19_df <- sjtable2df::mtab2df(mtab = age2_tab19, n_models = 1, output = "data.frame")
+age2_tab20_df <- sjtable2df::mtab2df(mtab = age2_tab20, n_models = 1, output = "data.frame")
+age2_tab21_df <- sjtable2df::mtab2df(mtab = age2_tab21, n_models = 1, output = "data.frame")
+age2_tab22_df <- sjtable2df::mtab2df(mtab = age2_tab22, n_models = 1, output = "data.frame")
+age2_tab23_df <- sjtable2df::mtab2df(mtab = age2_tab23, n_models = 1, output = "data.frame")
+age2_tab24_df <- sjtable2df::mtab2df(mtab = age2_tab24, n_models = 1, output = "data.frame")
+age2_tab25_df <- sjtable2df::mtab2df(mtab = age2_tab25, n_models = 1, output = "data.frame")
+age2_tab26_df <- sjtable2df::mtab2df(mtab = age2_tab26, n_models = 1, output = "data.frame")
+age2_tab27_df <- sjtable2df::mtab2df(mtab = age2_tab27, n_models = 1, output = "data.frame")
+age2_tab28_df <- sjtable2df::mtab2df(mtab = age2_tab28, n_models = 1, output = "data.frame")
+age2_tab29_df <- sjtable2df::mtab2df(mtab = age2_tab29, n_models = 1, output = "data.frame")
+age2_tab30_df <- sjtable2df::mtab2df(mtab = age2_tab30, n_models = 1, output = "data.frame")
+age2_tab31_df <- sjtable2df::mtab2df(mtab = age2_tab31, n_models = 1, output = "data.frame")
+age2_tab32_df <- sjtable2df::mtab2df(mtab = age2_tab32, n_models = 1, output = "data.frame")
+age2_tab33_df <- sjtable2df::mtab2df(mtab = age2_tab33, n_models = 1, output = "data.frame")
+age2_tab34_df <- sjtable2df::mtab2df(mtab = age2_tab34, n_models = 1, output = "data.frame")
+age2_tab35_df <- sjtable2df::mtab2df(mtab = age2_tab35, n_models = 1, output = "data.frame")
+age2_tab36_df <- sjtable2df::mtab2df(mtab = age2_tab36, n_models = 1, output = "data.frame")
+age2_tab37_df <- sjtable2df::mtab2df(mtab = age2_tab37, n_models = 1, output = "data.frame")
+age2_tab38_df <- sjtable2df::mtab2df(mtab = age2_tab38, n_models = 1, output = "data.frame")
+age2_tab39_df <- sjtable2df::mtab2df(mtab = age2_tab39, n_models = 1, output = "data.frame")
+age2_tab40_df <- sjtable2df::mtab2df(mtab = age2_tab40, n_models = 1, output = "data.frame")
+age2_tab41_df <- sjtable2df::mtab2df(mtab = age2_tab41, n_models = 1, output = "data.frame")
+age2_tab42_df <- sjtable2df::mtab2df(mtab = age2_tab42, n_models = 1, output = "data.frame")
+age2_tab43_df <- sjtable2df::mtab2df(mtab = age2_tab43, n_models = 1, output = "data.frame")
+age2_tab44_df <- sjtable2df::mtab2df(mtab = age2_tab44, n_models = 1, output = "data.frame")
+age2_tab45_df <- sjtable2df::mtab2df(mtab = age2_tab45, n_models = 1, output = "data.frame")
+age2_tab46_df <- sjtable2df::mtab2df(mtab = age2_tab46, n_models = 1, output = "data.frame")
+age2_tab47_df <- sjtable2df::mtab2df(mtab = age2_tab47, n_models = 1, output = "data.frame")
+age2_tab48_df <- sjtable2df::mtab2df(mtab = age2_tab48, n_models = 1, output = "data.frame")
+age2_tab49_df <- sjtable2df::mtab2df(mtab = age2_tab49, n_models = 1, output = "data.frame")
+age2_tab50_df <- sjtable2df::mtab2df(mtab = age2_tab50, n_models = 1, output = "data.frame")
+age2_tab51_df <- sjtable2df::mtab2df(mtab = age2_tab51, n_models = 1, output = "data.frame")
+age2_tab52_df <- sjtable2df::mtab2df(mtab = age2_tab52, n_models = 1, output = "data.frame")
+age2_tab53_df <- sjtable2df::mtab2df(mtab = age2_tab53, n_models = 1, output = "data.frame")
+age2_tab54_df <- sjtable2df::mtab2df(mtab = age2_tab54, n_models = 1, output = "data.frame")
+age2_tab55_df <- sjtable2df::mtab2df(mtab = age2_tab55, n_models = 1, output = "data.frame")
+age2_tab56_df <- sjtable2df::mtab2df(mtab = age2_tab56, n_models = 1, output = "data.frame")
+age2_tab57_df <- sjtable2df::mtab2df(mtab = age2_tab57, n_models = 1, output = "data.frame")
+age2_tab58_df <- sjtable2df::mtab2df(mtab = age2_tab58, n_models = 1, output = "data.frame")
+age2_tab59_df <- sjtable2df::mtab2df(mtab = age2_tab59, n_models = 1, output = "data.frame")
+age2_tab60_df <- sjtable2df::mtab2df(mtab = age2_tab60, n_models = 1, output = "data.frame")
+age2_tab61_df <- sjtable2df::mtab2df(mtab = age2_tab61, n_models = 1, output = "data.frame")
+age2_tab62_df <- sjtable2df::mtab2df(mtab = age2_tab62, n_models = 1, output = "data.frame")
+age2_tab63_df <- sjtable2df::mtab2df(mtab = age2_tab63, n_models = 1, output = "data.frame")
+age2_tab64_df <- sjtable2df::mtab2df(mtab = age2_tab64, n_models = 1, output = "data.frame")
+age2_tab65_df <- sjtable2df::mtab2df(mtab = age2_tab65, n_models = 1, output = "data.frame")
+age2_tab66_df <- sjtable2df::mtab2df(mtab = age2_tab66, n_models = 1, output = "data.frame")
+age2_tab67_df <- sjtable2df::mtab2df(mtab = age2_tab67, n_models = 1, output = "data.frame")
+age2_tab68_df <- sjtable2df::mtab2df(mtab = age2_tab68, n_models = 1, output = "data.frame")
+age2_tab69_df <- sjtable2df::mtab2df(mtab = age2_tab69, n_models = 1, output = "data.frame")
+age2_tab70_df <- sjtable2df::mtab2df(mtab = age2_tab70, n_models = 1, output = "data.frame")
+age2_tab71_df <- sjtable2df::mtab2df(mtab = age2_tab71, n_models = 1, output = "data.frame")
+```
+
+```{r}
+class(age2_tab1_df)
+class(age2_tab2_df)
+class(age2_tab3_df)
+class(age2_tab4_df)
+class(age2_tab5_df)
+class(age2_tab6_df)
+class(age2_tab7_df)
+class(age2_tab8_df)
+class(age2_tab9_df)
+class(age2_tab10_df)
+class(age2_tab11_df)
+class(age2_tab12_df)
+class(age2_tab13_df)
+class(age2_tab14_df)
+class(age2_tab15_df)
+class(age2_tab16_df)
+class(age2_tab17_df)
+class(age2_tab18_df)
+class(age2_tab19_df)
+class(age2_tab20_df)
+class(age2_tab21_df)
+class(age2_tab22_df)
+class(age2_tab23_df)
+class(age2_tab24_df)
+class(age2_tab25_df)
+class(age2_tab26_df)
+class(age2_tab27_df)
+class(age2_tab28_df)
+class(age2_tab29_df)
+class(age2_tab30_df)
+class(age2_tab31_df)
+class(age2_tab32_df)
+class(age2_tab33_df)
+class(age2_tab34_df)
+class(age2_tab35_df)
+class(age2_tab36_df)
+class(age2_tab37_df)
+class(age2_tab38_df)
+class(age2_tab39_df)
+class(age2_tab40_df)
+class(age2_tab41_df)
+class(age2_tab42_df)
+class(age2_tab43_df)
+class(age2_tab44_df)
+class(age2_tab45_df)
+class(age2_tab46_df)
+class(age2_tab47_df)
+class(age2_tab48_df)
+class(age2_tab49_df)
+class(age2_tab50_df)
+class(age2_tab51_df)
+class(age2_tab52_df)
+class(age2_tab53_df)
+class(age2_tab54_df)
+class(age2_tab55_df)
+class(age2_tab56_df)
+class(age2_tab57_df)
+class(age2_tab58_df)
+class(age2_tab59_df)
+class(age2_tab60_df)
+class(age2_tab61_df)
+class(age2_tab62_df)
+class(age2_tab63_df)
+class(age2_tab64_df)
+class(age2_tab65_df)
+class(age2_tab66_df)
+class(age2_tab67_df)
+class(age2_tab68_df)
+class(age2_tab69_df)
+class(age2_tab70_df)
+class(age2_tab71_df)
+```
+```{r}
+model_sum_age2 <- rbind(age2_tab1_df,
+age2_tab2_df,
+age2_tab3_df,
+age2_tab4_df,
+age2_tab5_df,
+age2_tab6_df,
+age2_tab7_df,
+age2_tab8_df,
+age2_tab9_df,
+age2_tab10_df,
+age2_tab11_df,
+age2_tab12_df,
+age2_tab13_df,
+age2_tab14_df,
+age2_tab15_df,
+age2_tab16_df,
+age2_tab17_df,
+age2_tab18_df,
+age2_tab19_df,
+age2_tab20_df,
+age2_tab21_df,
+age2_tab22_df,
+age2_tab23_df,
+age2_tab24_df,
+age2_tab25_df,
+age2_tab26_df,
+age2_tab27_df,
+age2_tab28_df,
+age2_tab29_df,
+age2_tab30_df,
+age2_tab31_df,
+age2_tab32_df,
+age2_tab33_df,
+age2_tab34_df,
+age2_tab35_df,
+age2_tab36_df,
+age2_tab37_df,
+age2_tab38_df,
+age2_tab39_df,
+age2_tab40_df,
+age2_tab41_df,
+age2_tab42_df,
+age2_tab43_df,
+age2_tab44_df,
+age2_tab45_df,
+age2_tab46_df,
+age2_tab47_df,
+age2_tab48_df,
+age2_tab49_df,
+age2_tab50_df,
+age2_tab51_df,
+age2_tab52_df,
+age2_tab53_df,
+age2_tab54_df,
+age2_tab55_df,
+age2_tab56_df,
+age2_tab57_df,
+age2_tab58_df,
+age2_tab59_df,
+age2_tab60_df,
+age2_tab61_df,
+age2_tab62_df,
+age2_tab63_df,
+age2_tab64_df,
+age2_tab65_df,
+age2_tab66_df,
+age2_tab67_df,
+age2_tab68_df,
+age2_tab69_df,
+age2_tab70_df,
+age2_tab71_df)
+```
+
+```{r}
+model_sum_age2
+write.csv(model_sum_age2, "model_sum_linear.csv")
+```
+
+#Quadratic Age Models
+```{r}
+model_AF_left_quad <- lme(AF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_AF_right_quad <- lme(AF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ATR_left_quad <- lme(ATR_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ATR_right_quad <- lme(ATR_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CA_quad <- lme(CA~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC1_quad <- lme(CC_1~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC2_quad <- lme(CC_2~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC3_quad <- lme(CC_3~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC4_quad <- lme(CC_4~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC5_quad <- lme(CC_5~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC6_quad <- lme(CC_6~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CC7_quad <- lme(CC_7~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CG_left_quad <- lme(CG_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CG_right_quad <- lme(CG_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CST_left_quad <- lme(CST_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_CST_right_quad <- lme(CST_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_FPT_left_quad <- lme(FPT_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_FPT_right_quad <- lme(FPT_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_FX_left_quad <- lme(FX_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_FX_right_quad <- lme(FX_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ICP_left_quad <- lme(ICP_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ICP_right_quad <- lme(ICP_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_IFO_left_quad <- lme(IFO_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_IFO_right_quad <- lme(IFO_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ILF_left_quad <- lme(ILF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ILF_right_quad <- lme(ILF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_MCP_quad <- lme(MCP~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_MLF_left_quad <- lme(MLF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_MLF_right_quad <- lme(MLF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_OR_left_quad <- lme(OR_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_OR_right_quad <- lme(OR_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_POPT_left_quad <- lme(POPT_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_POPT_right_quad <- lme(POPT_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SCP_left_quad <- lme(SCP_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SCP_right_quad <- lme(SCP_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_I_left_quad <- lme(SLF_I_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_I_right_quad <- lme(SLF_I_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_II_left_quad <- lme(SLF_II_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_II_right_quad <- lme(SLF_II_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_III_left_quad <- lme(SLF_III_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_SLF_III_right_quad <- lme(SLF_III_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_FO_left_quad <- lme(ST_FO_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_FO_right_quad <- lme(ST_FO_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_left_quad <- lme(ST_OCC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_right_quad <- lme(ST_OCC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_left_quad <- lme(ST_PAR_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_right_quad <- lme(ST_PAR_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_left_quad <- lme(ST_POSTC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_right_quad <- lme(ST_POSTC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_left_quad <- lme(ST_PREC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_right_quad <- lme(ST_PREC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_left_quad <- lme(ST_PREF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_right_quad <- lme(ST_PREF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_left_quad <- lme(ST_PREM_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_right_quad <- lme(ST_PREM_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_STR_left_quad <- lme(STR_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_STR_right_quad <- lme(STR_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_OCC_left_quad <- lme(T_OCC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_OCC_right_quad <- lme(T_OCC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PAR_left_quad <- lme(T_PAR_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PAR_right_quad <- lme(T_PAR_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_left_quad <- lme(T_POSTC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_right_quad <- lme(T_POSTC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREC_left_quad <- lme(T_PREC_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREC_right_quad <- lme(T_PREC_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREF_left_quad <- lme(T_PREF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREF_right_quad <- lme(T_PREF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREM_left_quad <- lme(T_PREM_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_T_PREM_right_quad <- lme(T_PREM_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_UF_left_quad <- lme(UF_left~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+model_UF_right_quad <- lme(UF_right~ poly(age_c, 2), data = data, random = ~1|SID, method = "ML")
+```
+
+```{r}
+quad_tab1 <- sjPlot:: tab_model(model_AF_left_quad)
+quad_tab2 <- sjPlot:: tab_model(model_AF_right_quad)
+quad_tab3 <- sjPlot:: tab_model(model_ATR_left_quad)
+quad_tab4 <- sjPlot:: tab_model(model_ATR_right_quad)
+quad_tab5 <- sjPlot:: tab_model(model_CA_quad)
+quad_tab6 <- sjPlot:: tab_model(model_CC1_quad)
+quad_tab7 <- sjPlot:: tab_model(model_CC2_quad)
+quad_tab8 <- sjPlot:: tab_model(model_CC3_quad)
+quad_tab9 <- sjPlot:: tab_model(model_CC4_quad)
+quad_tab10 <- sjPlot:: tab_model(model_CC5_quad)
+quad_tab11 <- sjPlot:: tab_model(model_CC6_quad)
+quad_tab12 <- sjPlot:: tab_model(model_CC7_quad)
+quad_tab13 <- sjPlot:: tab_model(model_CG_left_quad)
+quad_tab14 <- sjPlot:: tab_model(model_CG_right_quad)
+quad_tab15 <- sjPlot:: tab_model(model_CST_left_quad)
+quad_tab16 <- sjPlot:: tab_model(model_CST_right_quad)
+quad_tab17 <- sjPlot:: tab_model(model_FPT_left_quad)
+quad_tab18 <- sjPlot:: tab_model(model_FPT_right_quad)
+quad_tab19 <- sjPlot:: tab_model(model_FX_left_quad)
+quad_tab20 <- sjPlot:: tab_model(model_FX_right_quad)
+quad_tab21 <- sjPlot:: tab_model(model_ICP_left_quad)
+quad_tab22 <- sjPlot:: tab_model(model_ICP_right_quad)
+quad_tab23 <- sjPlot:: tab_model(model_IFO_left_quad)
+quad_tab24 <- sjPlot:: tab_model(model_IFO_right_quad)
+quad_tab25 <- sjPlot:: tab_model(model_ILF_left_quad)
+quad_tab26 <- sjPlot:: tab_model(model_ILF_right_quad)
+quad_tab27 <- sjPlot:: tab_model(model_MCP_quad)
+quad_tab28 <- sjPlot:: tab_model(model_MLF_left_quad)
+quad_tab29 <- sjPlot:: tab_model(model_MLF_right_quad)
+quad_tab30 <- sjPlot:: tab_model(model_OR_left_quad)
+quad_tab31 <- sjPlot:: tab_model(model_OR_right_quad)
+quad_tab32 <- sjPlot:: tab_model(model_POPT_left_quad)
+quad_tab33 <- sjPlot:: tab_model(model_POPT_right_quad)
+quad_tab34 <- sjPlot:: tab_model(model_SCP_left_quad)
+quad_tab35 <- sjPlot:: tab_model(model_SCP_right_quad)
+quad_tab36 <- sjPlot:: tab_model(model_SLF_I_left_quad)
+quad_tab37 <- sjPlot:: tab_model(model_SLF_I_right_quad)
+quad_tab38 <- sjPlot:: tab_model(model_SLF_II_left_quad)
+quad_tab39 <- sjPlot:: tab_model(model_SLF_II_right_quad)
+quad_tab40 <- sjPlot:: tab_model(model_SLF_III_left_quad)
+quad_tab41 <- sjPlot:: tab_model(model_SLF_III_right_quad)
+quad_tab42 <- sjPlot:: tab_model(model_ST_FO_left_quad)
+quad_tab43 <- sjPlot:: tab_model(model_ST_FO_right_quad)
+quad_tab44 <- sjPlot:: tab_model(model_ST_OCC_left_quad)
+quad_tab45 <- sjPlot:: tab_model(model_ST_OCC_right_quad)
+quad_tab46 <- sjPlot:: tab_model(model_ST_PAR_left_quad)
+quad_tab47 <- sjPlot:: tab_model(model_ST_PAR_right_quad)
+quad_tab48 <- sjPlot:: tab_model(model_ST_POSTC_left_quad)
+quad_tab49 <- sjPlot:: tab_model(model_ST_POSTC_right_quad)
+quad_tab50 <- sjPlot:: tab_model(model_ST_PREC_left_quad)
+quad_tab51 <- sjPlot:: tab_model(model_ST_PREC_right_quad)
+quad_tab52 <- sjPlot:: tab_model(model_ST_PREF_left_quad)
+quad_tab53 <- sjPlot:: tab_model(model_ST_PREF_right_quad)
+quad_tab54 <- sjPlot:: tab_model(model_ST_PREM_left_quad)
+quad_tab55 <- sjPlot:: tab_model(model_ST_PREM_right_quad)
+quad_tab56 <- sjPlot:: tab_model(model_STR_left_quad)
+quad_tab57 <- sjPlot:: tab_model(model_STR_right_quad)
+quad_tab58 <- sjPlot:: tab_model(model_T_OCC_left_quad)
+quad_tab59 <- sjPlot:: tab_model(model_T_OCC_right_quad)
+quad_tab60 <- sjPlot:: tab_model(model_T_PAR_left_quad)
+quad_tab61 <- sjPlot:: tab_model(model_T_PAR_right_quad)
+quad_tab62 <- sjPlot:: tab_model(model_T_POSTC_left_quad)
+quad_tab63 <- sjPlot:: tab_model(model_T_POSTC_right_quad)
+quad_tab64 <- sjPlot:: tab_model(model_T_PREC_left_quad)
+quad_tab65 <- sjPlot:: tab_model(model_T_PREC_right_quad)
+quad_tab66 <- sjPlot:: tab_model(model_T_PREF_left_quad)
+quad_tab67 <- sjPlot:: tab_model(model_T_PREF_right_quad)
+quad_tab68 <- sjPlot:: tab_model(model_T_PREM_left_quad)
+quad_tab69 <- sjPlot:: tab_model(model_T_PREM_right_quad)
+quad_tab70 <- sjPlot:: tab_model(model_UF_left_quad)
+quad_tab71 <- sjPlot:: tab_model(model_UF_right_quad)
+```
+
+```{r}
+quad_tab1_df <- sjtable2df::mtab2df(mtab = quad_tab1, n_models = 1, output = "data.frame")
+quad_tab2_df <- sjtable2df::mtab2df(mtab = quad_tab2, n_models = 1, output = "data.frame")
+quad_tab3_df <- sjtable2df::mtab2df(mtab = quad_tab3, n_models = 1, output = "data.frame")
+quad_tab4_df <- sjtable2df::mtab2df(mtab = quad_tab4, n_models = 1, output = "data.frame")
+quad_tab5_df <- sjtable2df::mtab2df(mtab = quad_tab5, n_models = 1, output = "data.frame")
+quad_tab6_df <- sjtable2df::mtab2df(mtab = quad_tab6, n_models = 1, output = "data.frame")
+quad_tab7_df <- sjtable2df::mtab2df(mtab = quad_tab7, n_models = 1, output = "data.frame")
+quad_tab8_df <- sjtable2df::mtab2df(mtab = quad_tab8, n_models = 1, output = "data.frame")
+quad_tab9_df <- sjtable2df::mtab2df(mtab = quad_tab9, n_models = 1, output = "data.frame")
+quad_tab10_df <- sjtable2df::mtab2df(mtab = quad_tab10, n_models = 1, output = "data.frame")
+quad_tab11_df <- sjtable2df::mtab2df(mtab = quad_tab11, n_models = 1, output = "data.frame")
+quad_tab12_df <- sjtable2df::mtab2df(mtab = quad_tab12, n_models = 1, output = "data.frame")
+quad_tab13_df <- sjtable2df::mtab2df(mtab = quad_tab13, n_models = 1, output = "data.frame")
+quad_tab14_df <- sjtable2df::mtab2df(mtab = quad_tab14, n_models = 1, output = "data.frame")
+quad_tab15_df <- sjtable2df::mtab2df(mtab = quad_tab15, n_models = 1, output = "data.frame")
+quad_tab16_df <- sjtable2df::mtab2df(mtab = quad_tab16, n_models = 1, output = "data.frame")
+quad_tab17_df <- sjtable2df::mtab2df(mtab = quad_tab17, n_models = 1, output = "data.frame")
+quad_tab18_df <- sjtable2df::mtab2df(mtab = quad_tab18, n_models = 1, output = "data.frame")
+quad_tab19_df <- sjtable2df::mtab2df(mtab = quad_tab19, n_models = 1, output = "data.frame")
+quad_tab20_df <- sjtable2df::mtab2df(mtab = quad_tab20, n_models = 1, output = "data.frame")
+quad_tab21_df <- sjtable2df::mtab2df(mtab = quad_tab21, n_models = 1, output = "data.frame")
+quad_tab22_df <- sjtable2df::mtab2df(mtab = quad_tab22, n_models = 1, output = "data.frame")
+quad_tab23_df <- sjtable2df::mtab2df(mtab = quad_tab23, n_models = 1, output = "data.frame")
+quad_tab24_df <- sjtable2df::mtab2df(mtab = quad_tab24, n_models = 1, output = "data.frame")
+quad_tab25_df <- sjtable2df::mtab2df(mtab = quad_tab25, n_models = 1, output = "data.frame")
+quad_tab26_df <- sjtable2df::mtab2df(mtab = quad_tab26, n_models = 1, output = "data.frame")
+quad_tab27_df <- sjtable2df::mtab2df(mtab = quad_tab27, n_models = 1, output = "data.frame")
+quad_tab28_df <- sjtable2df::mtab2df(mtab = quad_tab28, n_models = 1, output = "data.frame")
+quad_tab29_df <- sjtable2df::mtab2df(mtab = quad_tab29, n_models = 1, output = "data.frame")
+quad_tab30_df <- sjtable2df::mtab2df(mtab = quad_tab30, n_models = 1, output = "data.frame")
+quad_tab31_df <- sjtable2df::mtab2df(mtab = quad_tab31, n_models = 1, output = "data.frame")
+quad_tab32_df <- sjtable2df::mtab2df(mtab = quad_tab32, n_models = 1, output = "data.frame")
+quad_tab33_df <- sjtable2df::mtab2df(mtab = quad_tab33, n_models = 1, output = "data.frame")
+quad_tab34_df <- sjtable2df::mtab2df(mtab = quad_tab34, n_models = 1, output = "data.frame")
+quad_tab35_df <- sjtable2df::mtab2df(mtab = quad_tab35, n_models = 1, output = "data.frame")
+quad_tab36_df <- sjtable2df::mtab2df(mtab = quad_tab36, n_models = 1, output = "data.frame")
+quad_tab37_df <- sjtable2df::mtab2df(mtab = quad_tab37, n_models = 1, output = "data.frame")
+quad_tab38_df <- sjtable2df::mtab2df(mtab = quad_tab38, n_models = 1, output = "data.frame")
+quad_tab39_df <- sjtable2df::mtab2df(mtab = quad_tab39, n_models = 1, output = "data.frame")
+quad_tab40_df <- sjtable2df::mtab2df(mtab = quad_tab40, n_models = 1, output = "data.frame")
+quad_tab41_df <- sjtable2df::mtab2df(mtab = quad_tab41, n_models = 1, output = "data.frame")
+quad_tab42_df <- sjtable2df::mtab2df(mtab = quad_tab42, n_models = 1, output = "data.frame")
+quad_tab43_df <- sjtable2df::mtab2df(mtab = quad_tab43, n_models = 1, output = "data.frame")
+quad_tab44_df <- sjtable2df::mtab2df(mtab = quad_tab44, n_models = 1, output = "data.frame")
+quad_tab45_df <- sjtable2df::mtab2df(mtab = quad_tab45, n_models = 1, output = "data.frame")
+quad_tab46_df <- sjtable2df::mtab2df(mtab = quad_tab46, n_models = 1, output = "data.frame")
+quad_tab47_df <- sjtable2df::mtab2df(mtab = quad_tab47, n_models = 1, output = "data.frame")
+quad_tab48_df <- sjtable2df::mtab2df(mtab = quad_tab48, n_models = 1, output = "data.frame")
+quad_tab49_df <- sjtable2df::mtab2df(mtab = quad_tab49, n_models = 1, output = "data.frame")
+quad_tab50_df <- sjtable2df::mtab2df(mtab = quad_tab50, n_models = 1, output = "data.frame")
+quad_tab51_df <- sjtable2df::mtab2df(mtab = quad_tab51, n_models = 1, output = "data.frame")
+quad_tab52_df <- sjtable2df::mtab2df(mtab = quad_tab52, n_models = 1, output = "data.frame")
+quad_tab53_df <- sjtable2df::mtab2df(mtab = quad_tab53, n_models = 1, output = "data.frame")
+quad_tab54_df <- sjtable2df::mtab2df(mtab = quad_tab54, n_models = 1, output = "data.frame")
+quad_tab55_df <- sjtable2df::mtab2df(mtab = quad_tab55, n_models = 1, output = "data.frame")
+quad_tab56_df <- sjtable2df::mtab2df(mtab = quad_tab56, n_models = 1, output = "data.frame")
+quad_tab57_df <- sjtable2df::mtab2df(mtab = quad_tab57, n_models = 1, output = "data.frame")
+quad_tab58_df <- sjtable2df::mtab2df(mtab = quad_tab58, n_models = 1, output = "data.frame")
+quad_tab59_df <- sjtable2df::mtab2df(mtab = quad_tab59, n_models = 1, output = "data.frame")
+quad_tab60_df <- sjtable2df::mtab2df(mtab = quad_tab60, n_models = 1, output = "data.frame")
+quad_tab61_df <- sjtable2df::mtab2df(mtab = quad_tab61, n_models = 1, output = "data.frame")
+quad_tab62_df <- sjtable2df::mtab2df(mtab = quad_tab62, n_models = 1, output = "data.frame")
+quad_tab63_df <- sjtable2df::mtab2df(mtab = quad_tab63, n_models = 1, output = "data.frame")
+quad_tab64_df <- sjtable2df::mtab2df(mtab = quad_tab64, n_models = 1, output = "data.frame")
+quad_tab65_df <- sjtable2df::mtab2df(mtab = quad_tab65, n_models = 1, output = "data.frame")
+quad_tab66_df <- sjtable2df::mtab2df(mtab = quad_tab66, n_models = 1, output = "data.frame")
+quad_tab67_df <- sjtable2df::mtab2df(mtab = quad_tab67, n_models = 1, output = "data.frame")
+quad_tab68_df <- sjtable2df::mtab2df(mtab = quad_tab68, n_models = 1, output = "data.frame")
+quad_tab69_df <- sjtable2df::mtab2df(mtab = quad_tab69, n_models = 1, output = "data.frame")
+quad_tab70_df <- sjtable2df::mtab2df(mtab = quad_tab70, n_models = 1, output = "data.frame")
+quad_tab71_df <- sjtable2df::mtab2df(mtab = quad_tab71, n_models = 1, output = "data.frame")
+```
+
+```{r}
+model_sum_quad <- rbind(quad_tab1_df,
+quad_tab2_df,
+quad_tab3_df,
+quad_tab4_df,
+quad_tab5_df,
+quad_tab6_df,
+quad_tab7_df,
+quad_tab8_df,
+quad_tab9_df,
+quad_tab10_df,
+quad_tab11_df,
+quad_tab12_df,
+quad_tab13_df,
+quad_tab14_df,
+quad_tab15_df,
+quad_tab16_df,
+quad_tab17_df,
+quad_tab18_df,
+quad_tab19_df,
+quad_tab20_df,
+quad_tab21_df,
+quad_tab22_df,
+quad_tab23_df,
+quad_tab24_df,
+quad_tab25_df,
+quad_tab26_df,
+quad_tab27_df,
+quad_tab28_df,
+quad_tab29_df,
+quad_tab30_df,
+quad_tab31_df,
+quad_tab32_df,
+quad_tab33_df,
+quad_tab34_df,
+quad_tab35_df,
+quad_tab36_df,
+quad_tab37_df,
+quad_tab38_df,
+quad_tab39_df,
+quad_tab40_df,
+quad_tab41_df,
+quad_tab42_df,
+quad_tab43_df,
+quad_tab44_df,
+quad_tab45_df,
+quad_tab46_df,
+quad_tab47_df,
+quad_tab48_df,
+quad_tab49_df,
+quad_tab50_df,
+quad_tab51_df,
+quad_tab52_df,
+quad_tab53_df,
+quad_tab54_df,
+quad_tab55_df,
+quad_tab56_df,
+quad_tab57_df,
+quad_tab58_df,
+quad_tab59_df,
+quad_tab60_df,
+quad_tab61_df,
+quad_tab62_df,
+quad_tab63_df,
+quad_tab64_df,
+quad_tab65_df,
+quad_tab66_df,
+quad_tab67_df,
+quad_tab68_df,
+quad_tab69_df,
+quad_tab70_df,
+quad_tab71_df)
+```
+
+```{r}
+model_sum_quad
+write.csv(model_sum_quad, "model_sum_quad.csv")
+```
+
+# Age + Gender Models
+```{r}
+model_AF_left_gender <- lme(AF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_AF_right_gender <- lme(AF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ATR_left_gender <- lme(ATR_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ATR_right_gender <- lme(ATR_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CA_gender <- lme(CA~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC1_gender <- lme(CC_1~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC2_gender <- lme(CC_2~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC3_gender <- lme(CC_3~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC4_gender <- lme(CC_4~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC5_gender <- lme(CC_5~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC6_gender <- lme(CC_6~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CC7_gender <- lme(CC_7~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CG_left_gender <- lme(CG_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CG_right_gender <- lme(CG_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CST_left_gender <- lme(CST_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_CST_right_gender <- lme(CST_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_FPT_left_gender <- lme(FPT_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_FPT_right_gender <- lme(FPT_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_FX_left_gender <- lme(FX_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_FX_right_gender <- lme(FX_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ICP_left_gender <- lme(ICP_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ICP_right_gender <- lme(ICP_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_IFO_left_gender <- lme(IFO_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_IFO_right_gender <- lme(IFO_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ILF_left_gender <- lme(ILF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ILF_right_gender <- lme(ILF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_MCP_gender <- lme(MCP~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_MLF_left_gender <- lme(MLF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_MLF_right_gender <- lme(MLF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_OR_left_gender <- lme(OR_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_OR_right_gender <- lme(OR_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_POPT_left_gender <- lme(POPT_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_POPT_right_gender <- lme(POPT_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SCP_left_gender <- lme(SCP_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SCP_right_gender <- lme(SCP_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_I_left_gender <- lme(SLF_I_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_I_right_gender <- lme(SLF_I_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_II_left_gender <- lme(SLF_II_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_II_right_gender <- lme(SLF_II_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_III_left_gender <- lme(SLF_III_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_SLF_III_right_gender <- lme(SLF_III_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_FO_left_gender <- lme(ST_FO_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_FO_right_gender <- lme(ST_FO_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_left_gender <- lme(ST_OCC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_right_gender <- lme(ST_OCC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_left_gender <- lme(ST_PAR_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_right_gender <- lme(ST_PAR_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_left_gender <- lme(ST_POSTC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_right_gender <- lme(ST_POSTC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_left_gender <- lme(ST_PREC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_right_gender <- lme(ST_PREC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_left_gender <- lme(ST_PREF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_right_gender <- lme(ST_PREF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_left_gender <- lme(ST_PREM_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_right_gender <- lme(ST_PREM_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_STR_left_gender <- lme(STR_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_STR_right_gender <- lme(STR_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_OCC_left_gender <- lme(T_OCC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_OCC_right_gender <- lme(T_OCC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PAR_left_gender <- lme(T_PAR_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PAR_right_gender <- lme(T_PAR_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_left_gender <- lme(T_POSTC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_right_gender <- lme(T_POSTC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREC_left_gender <- lme(T_PREC_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREC_right_gender <- lme(T_PREC_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREF_left_gender <- lme(T_PREF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREF_right_gender <- lme(T_PREF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREM_left_gender <- lme(T_PREM_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_T_PREM_right_gender <- lme(T_PREM_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_UF_left_gender <- lme(UF_left~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+model_UF_right_gender <- lme(UF_right~ poly(age_c, 2) + as.factor(gender), data = data, random = ~1|SID, method = "ML")
+```
+
+```{r}
+gender_tab1 <- sjPlot:: tab_model(model_AF_left_gender)
+gender_tab2 <- sjPlot:: tab_model(model_AF_right_gender)
+gender_tab3 <- sjPlot:: tab_model(model_ATR_left_gender)
+gender_tab4 <- sjPlot:: tab_model(model_ATR_right_gender)
+gender_tab5 <- sjPlot:: tab_model(model_CA_gender)
+gender_tab6 <- sjPlot:: tab_model(model_CC1_gender)
+gender_tab7 <- sjPlot:: tab_model(model_CC2_gender)
+gender_tab8 <- sjPlot:: tab_model(model_CC3_gender)
+gender_tab9 <- sjPlot:: tab_model(model_CC4_gender)
+gender_tab10 <- sjPlot:: tab_model(model_CC5_gender)
+gender_tab11 <- sjPlot:: tab_model(model_CC6_gender)
+gender_tab12 <- sjPlot:: tab_model(model_CC7_gender)
+gender_tab13 <- sjPlot:: tab_model(model_CG_left_gender)
+gender_tab14 <- sjPlot:: tab_model(model_CG_right_gender)
+gender_tab15 <- sjPlot:: tab_model(model_CST_left_gender)
+gender_tab16 <- sjPlot:: tab_model(model_CST_right_gender)
+gender_tab17 <- sjPlot:: tab_model(model_FPT_left_gender)
+gender_tab18 <- sjPlot:: tab_model(model_FPT_right_gender)
+gender_tab19 <- sjPlot:: tab_model(model_FX_left_gender)
+gender_tab20 <- sjPlot:: tab_model(model_FX_right_gender)
+gender_tab21 <- sjPlot:: tab_model(model_ICP_left_gender)
+gender_tab22 <- sjPlot:: tab_model(model_ICP_right_gender)
+gender_tab23 <- sjPlot:: tab_model(model_IFO_left_gender)
+gender_tab24 <- sjPlot:: tab_model(model_IFO_right_gender)
+gender_tab25 <- sjPlot:: tab_model(model_ILF_left_gender)
+gender_tab26 <- sjPlot:: tab_model(model_ILF_right_gender)
+gender_tab27 <- sjPlot:: tab_model(model_MCP_gender)
+gender_tab28 <- sjPlot:: tab_model(model_MLF_left_gender)
+gender_tab29 <- sjPlot:: tab_model(model_MLF_right_gender)
+gender_tab30 <- sjPlot:: tab_model(model_OR_left_gender)
+gender_tab31 <- sjPlot:: tab_model(model_OR_right_gender)
+gender_tab32 <- sjPlot:: tab_model(model_POPT_left_gender)
+gender_tab33 <- sjPlot:: tab_model(model_POPT_right_gender)
+gender_tab34 <- sjPlot:: tab_model(model_SCP_left_gender)
+gender_tab35 <- sjPlot:: tab_model(model_SCP_right_gender)
+gender_tab36 <- sjPlot:: tab_model(model_SLF_I_left_gender)
+gender_tab37 <- sjPlot:: tab_model(model_SLF_I_right_gender)
+gender_tab38 <- sjPlot:: tab_model(model_SLF_II_left_gender)
+gender_tab39 <- sjPlot:: tab_model(model_SLF_II_right_gender)
+gender_tab40 <- sjPlot:: tab_model(model_SLF_III_left_gender)
+gender_tab41 <- sjPlot:: tab_model(model_SLF_III_right_gender)
+gender_tab42 <- sjPlot:: tab_model(model_ST_FO_left_gender)
+gender_tab43 <- sjPlot:: tab_model(model_ST_FO_right_gender)
+gender_tab44 <- sjPlot:: tab_model(model_ST_OCC_left_gender)
+gender_tab45 <- sjPlot:: tab_model(model_ST_OCC_right_gender)
+gender_tab46 <- sjPlot:: tab_model(model_ST_PAR_left_gender)
+gender_tab47 <- sjPlot:: tab_model(model_ST_PAR_right_gender)
+gender_tab48 <- sjPlot:: tab_model(model_ST_POSTC_left_gender)
+gender_tab49 <- sjPlot:: tab_model(model_ST_POSTC_right_gender)
+gender_tab50 <- sjPlot:: tab_model(model_ST_PREC_left_gender)
+gender_tab51 <- sjPlot:: tab_model(model_ST_PREC_right_gender)
+gender_tab52 <- sjPlot:: tab_model(model_ST_PREF_left_gender)
+gender_tab53 <- sjPlot:: tab_model(model_ST_PREF_right_gender)
+gender_tab54 <- sjPlot:: tab_model(model_ST_PREM_left_gender)
+gender_tab55 <- sjPlot:: tab_model(model_ST_PREM_right_gender)
+gender_tab56 <- sjPlot:: tab_model(model_STR_left_gender)
+gender_tab57 <- sjPlot:: tab_model(model_STR_right_gender)
+gender_tab58 <- sjPlot:: tab_model(model_T_OCC_left_gender)
+gender_tab59 <- sjPlot:: tab_model(model_T_OCC_right_gender)
+gender_tab60 <- sjPlot:: tab_model(model_T_PAR_left_gender)
+gender_tab61 <- sjPlot:: tab_model(model_T_PAR_right_gender)
+gender_tab62 <- sjPlot:: tab_model(model_T_POSTC_left_gender)
+gender_tab63 <- sjPlot:: tab_model(model_T_POSTC_right_gender)
+gender_tab64 <- sjPlot:: tab_model(model_T_PREC_left_gender)
+gender_tab65 <- sjPlot:: tab_model(model_T_PREC_right_gender)
+gender_tab66 <- sjPlot:: tab_model(model_T_PREF_left_gender)
+gender_tab67 <- sjPlot:: tab_model(model_T_PREF_right_gender)
+gender_tab68 <- sjPlot:: tab_model(model_T_PREM_left_gender)
+gender_tab69 <- sjPlot:: tab_model(model_T_PREM_right_gender)
+gender_tab70 <- sjPlot:: tab_model(model_UF_left_gender)
+gender_tab71 <- sjPlot:: tab_model(model_UF_right_gender)
+```
+
+```{r}
+gender_tab1_df <- sjtable2df::mtab2df(mtab = gender_tab1, n_models = 1, output = "data.frame")
+gender_tab2_df <- sjtable2df::mtab2df(mtab = gender_tab2, n_models = 1, output = "data.frame")
+gender_tab3_df <- sjtable2df::mtab2df(mtab = gender_tab3, n_models = 1, output = "data.frame")
+gender_tab4_df <- sjtable2df::mtab2df(mtab = gender_tab4, n_models = 1, output = "data.frame")
+gender_tab5_df <- sjtable2df::mtab2df(mtab = gender_tab5, n_models = 1, output = "data.frame")
+gender_tab6_df <- sjtable2df::mtab2df(mtab = gender_tab6, n_models = 1, output = "data.frame")
+gender_tab7_df <- sjtable2df::mtab2df(mtab = gender_tab7, n_models = 1, output = "data.frame")
+gender_tab8_df <- sjtable2df::mtab2df(mtab = gender_tab8, n_models = 1, output = "data.frame")
+gender_tab9_df <- sjtable2df::mtab2df(mtab = gender_tab9, n_models = 1, output = "data.frame")
+gender_tab10_df <- sjtable2df::mtab2df(mtab = gender_tab10, n_models = 1, output = "data.frame")
+gender_tab11_df <- sjtable2df::mtab2df(mtab = gender_tab11, n_models = 1, output = "data.frame")
+gender_tab12_df <- sjtable2df::mtab2df(mtab = gender_tab12, n_models = 1, output = "data.frame")
+gender_tab13_df <- sjtable2df::mtab2df(mtab = gender_tab13, n_models = 1, output = "data.frame")
+gender_tab14_df <- sjtable2df::mtab2df(mtab = gender_tab14, n_models = 1, output = "data.frame")
+gender_tab15_df <- sjtable2df::mtab2df(mtab = gender_tab15, n_models = 1, output = "data.frame")
+gender_tab16_df <- sjtable2df::mtab2df(mtab = gender_tab16, n_models = 1, output = "data.frame")
+gender_tab17_df <- sjtable2df::mtab2df(mtab = gender_tab17, n_models = 1, output = "data.frame")
+gender_tab18_df <- sjtable2df::mtab2df(mtab = gender_tab18, n_models = 1, output = "data.frame")
+gender_tab19_df <- sjtable2df::mtab2df(mtab = gender_tab19, n_models = 1, output = "data.frame")
+gender_tab20_df <- sjtable2df::mtab2df(mtab = gender_tab20, n_models = 1, output = "data.frame")
+gender_tab21_df <- sjtable2df::mtab2df(mtab = gender_tab21, n_models = 1, output = "data.frame")
+gender_tab22_df <- sjtable2df::mtab2df(mtab = gender_tab22, n_models = 1, output = "data.frame")
+gender_tab23_df <- sjtable2df::mtab2df(mtab = gender_tab23, n_models = 1, output = "data.frame")
+gender_tab24_df <- sjtable2df::mtab2df(mtab = gender_tab24, n_models = 1, output = "data.frame")
+gender_tab25_df <- sjtable2df::mtab2df(mtab = gender_tab25, n_models = 1, output = "data.frame")
+gender_tab26_df <- sjtable2df::mtab2df(mtab = gender_tab26, n_models = 1, output = "data.frame")
+gender_tab27_df <- sjtable2df::mtab2df(mtab = gender_tab27, n_models = 1, output = "data.frame")
+gender_tab28_df <- sjtable2df::mtab2df(mtab = gender_tab28, n_models = 1, output = "data.frame")
+gender_tab29_df <- sjtable2df::mtab2df(mtab = gender_tab29, n_models = 1, output = "data.frame")
+gender_tab30_df <- sjtable2df::mtab2df(mtab = gender_tab30, n_models = 1, output = "data.frame")
+gender_tab31_df <- sjtable2df::mtab2df(mtab = gender_tab31, n_models = 1, output = "data.frame")
+gender_tab32_df <- sjtable2df::mtab2df(mtab = gender_tab32, n_models = 1, output = "data.frame")
+gender_tab33_df <- sjtable2df::mtab2df(mtab = gender_tab33, n_models = 1, output = "data.frame")
+gender_tab34_df <- sjtable2df::mtab2df(mtab = gender_tab34, n_models = 1, output = "data.frame")
+gender_tab35_df <- sjtable2df::mtab2df(mtab = gender_tab35, n_models = 1, output = "data.frame")
+gender_tab36_df <- sjtable2df::mtab2df(mtab = gender_tab36, n_models = 1, output = "data.frame")
+gender_tab37_df <- sjtable2df::mtab2df(mtab = gender_tab37, n_models = 1, output = "data.frame")
+gender_tab38_df <- sjtable2df::mtab2df(mtab = gender_tab38, n_models = 1, output = "data.frame")
+gender_tab39_df <- sjtable2df::mtab2df(mtab = gender_tab39, n_models = 1, output = "data.frame")
+gender_tab40_df <- sjtable2df::mtab2df(mtab = gender_tab40, n_models = 1, output = "data.frame")
+gender_tab41_df <- sjtable2df::mtab2df(mtab = gender_tab41, n_models = 1, output = "data.frame")
+gender_tab42_df <- sjtable2df::mtab2df(mtab = gender_tab42, n_models = 1, output = "data.frame")
+gender_tab43_df <- sjtable2df::mtab2df(mtab = gender_tab43, n_models = 1, output = "data.frame")
+gender_tab44_df <- sjtable2df::mtab2df(mtab = gender_tab44, n_models = 1, output = "data.frame")
+gender_tab45_df <- sjtable2df::mtab2df(mtab = gender_tab45, n_models = 1, output = "data.frame")
+gender_tab46_df <- sjtable2df::mtab2df(mtab = gender_tab46, n_models = 1, output = "data.frame")
+gender_tab47_df <- sjtable2df::mtab2df(mtab = gender_tab47, n_models = 1, output = "data.frame")
+gender_tab48_df <- sjtable2df::mtab2df(mtab = gender_tab48, n_models = 1, output = "data.frame")
+gender_tab49_df <- sjtable2df::mtab2df(mtab = gender_tab49, n_models = 1, output = "data.frame")
+gender_tab50_df <- sjtable2df::mtab2df(mtab = gender_tab50, n_models = 1, output = "data.frame")
+gender_tab51_df <- sjtable2df::mtab2df(mtab = gender_tab51, n_models = 1, output = "data.frame")
+gender_tab52_df <- sjtable2df::mtab2df(mtab = gender_tab52, n_models = 1, output = "data.frame")
+gender_tab53_df <- sjtable2df::mtab2df(mtab = gender_tab53, n_models = 1, output = "data.frame")
+gender_tab54_df <- sjtable2df::mtab2df(mtab = gender_tab54, n_models = 1, output = "data.frame")
+gender_tab55_df <- sjtable2df::mtab2df(mtab = gender_tab55, n_models = 1, output = "data.frame")
+gender_tab56_df <- sjtable2df::mtab2df(mtab = gender_tab56, n_models = 1, output = "data.frame")
+gender_tab57_df <- sjtable2df::mtab2df(mtab = gender_tab57, n_models = 1, output = "data.frame")
+gender_tab58_df <- sjtable2df::mtab2df(mtab = gender_tab58, n_models = 1, output = "data.frame")
+gender_tab59_df <- sjtable2df::mtab2df(mtab = gender_tab59, n_models = 1, output = "data.frame")
+gender_tab60_df <- sjtable2df::mtab2df(mtab = gender_tab60, n_models = 1, output = "data.frame")
+gender_tab61_df <- sjtable2df::mtab2df(mtab = gender_tab61, n_models = 1, output = "data.frame")
+gender_tab62_df <- sjtable2df::mtab2df(mtab = gender_tab62, n_models = 1, output = "data.frame")
+gender_tab63_df <- sjtable2df::mtab2df(mtab = gender_tab63, n_models = 1, output = "data.frame")
+gender_tab64_df <- sjtable2df::mtab2df(mtab = gender_tab64, n_models = 1, output = "data.frame")
+gender_tab65_df <- sjtable2df::mtab2df(mtab = gender_tab65, n_models = 1, output = "data.frame")
+gender_tab66_df <- sjtable2df::mtab2df(mtab = gender_tab66, n_models = 1, output = "data.frame")
+gender_tab67_df <- sjtable2df::mtab2df(mtab = gender_tab67, n_models = 1, output = "data.frame")
+gender_tab68_df <- sjtable2df::mtab2df(mtab = gender_tab68, n_models = 1, output = "data.frame")
+gender_tab69_df <- sjtable2df::mtab2df(mtab = gender_tab69, n_models = 1, output = "data.frame")
+gender_tab70_df <- sjtable2df::mtab2df(mtab = gender_tab70, n_models = 1, output = "data.frame")
+gender_tab71_df <- sjtable2df::mtab2df(mtab = gender_tab71, n_models = 1, output = "data.frame")
+```
+
+```{r}
+model_sum_gender <- rbind(gender_tab1_df,
+gender_tab2_df,
+gender_tab3_df,
+gender_tab4_df,
+gender_tab5_df,
+gender_tab6_df,
+gender_tab7_df,
+gender_tab8_df,
+gender_tab9_df,
+gender_tab10_df,
+gender_tab11_df,
+gender_tab12_df,
+gender_tab13_df,
+gender_tab14_df,
+gender_tab15_df,
+gender_tab16_df,
+gender_tab17_df,
+gender_tab18_df,
+gender_tab19_df,
+gender_tab20_df,
+gender_tab21_df,
+gender_tab22_df,
+gender_tab23_df,
+gender_tab24_df,
+gender_tab25_df,
+gender_tab26_df,
+gender_tab27_df,
+gender_tab28_df,
+gender_tab29_df,
+gender_tab30_df,
+gender_tab31_df,
+gender_tab32_df,
+gender_tab33_df,
+gender_tab34_df,
+gender_tab35_df,
+gender_tab36_df,
+gender_tab37_df,
+gender_tab38_df,
+gender_tab39_df,
+gender_tab40_df,
+gender_tab41_df,
+gender_tab42_df,
+gender_tab43_df,
+gender_tab44_df,
+gender_tab45_df,
+gender_tab46_df,
+gender_tab47_df,
+gender_tab48_df,
+gender_tab49_df,
+gender_tab50_df,
+gender_tab51_df,
+gender_tab52_df,
+gender_tab53_df,
+gender_tab54_df,
+gender_tab55_df,
+gender_tab56_df,
+gender_tab57_df,
+gender_tab58_df,
+gender_tab59_df,
+gender_tab60_df,
+gender_tab61_df,
+gender_tab62_df,
+gender_tab63_df,
+gender_tab64_df,
+gender_tab65_df,
+gender_tab66_df,
+gender_tab67_df,
+gender_tab68_df,
+gender_tab69_df,
+gender_tab70_df,
+gender_tab71_df)
+```
+
+```{r}
+model_sum_gender
+write.csv(model_sum_gender, "model_sum_quad_gender.csv")
+```
+
+# Age*Gender Models
+```{r}
+model_AF_left_int_gender <- lme(AF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_AF_right_int_gender <- lme(AF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ATR_left_int_gender <- lme(ATR_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ATR_right_int_gender <- lme(ATR_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CA_int_gender <- lme(CA~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC1_int_gender <- lme(CC_1~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC2_int_gender <- lme(CC_2~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC3_int_gender <- lme(CC_3~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC4_int_gender <- lme(CC_4~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC5_int_gender <- lme(CC_5~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC6_int_gender <- lme(CC_6~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CC7_int_gender <- lme(CC_7~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CG_left_int_gender <- lme(CG_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CG_right_int_gender <- lme(CG_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CST_left_int_gender <- lme(CST_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_CST_right_int_gender <- lme(CST_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_FPT_left_int_gender <- lme(FPT_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_FPT_right_int_gender <- lme(FPT_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_FX_left_int_gender <- lme(FX_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_FX_right_int_gender <- lme(FX_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ICP_left_int_gender <- lme(ICP_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ICP_right_int_gender <- lme(ICP_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_IFO_left_int_gender <- lme(IFO_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_IFO_right_int_gender <- lme(IFO_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ILF_left_int_gender <- lme(ILF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ILF_right_int_gender <- lme(ILF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_MCP_int_gender <- lme(MCP~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_MLF_left_int_gender <- lme(MLF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_MLF_right_int_gender <- lme(MLF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_OR_left_int_gender <- lme(OR_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_OR_right_int_gender <- lme(OR_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_POPT_left_int_gender <- lme(POPT_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_POPT_right_int_gender <- lme(POPT_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SCP_left_int_gender <- lme(SCP_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SCP_right_int_gender <- lme(SCP_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_I_left_int_gender <- lme(SLF_I_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_I_right_int_gender <- lme(SLF_I_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_II_left_int_gender <- lme(SLF_II_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_II_right_int_gender <- lme(SLF_II_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_III_left_int_gender <- lme(SLF_III_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_SLF_III_right_int_gender <- lme(SLF_III_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_FO_left_int_gender <- lme(ST_FO_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_FO_right_int_gender <- lme(ST_FO_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_left_int_gender <- lme(ST_OCC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_OCC_right_int_gender <- lme(ST_OCC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_left_int_gender <- lme(ST_PAR_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PAR_right_int_gender <- lme(ST_PAR_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_left_int_gender <- lme(ST_POSTC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_POSTC_right_int_gender <- lme(ST_POSTC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_left_int_gender <- lme(ST_PREC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREC_right_int_gender <- lme(ST_PREC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_left_int_gender <- lme(ST_PREF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREF_right_int_gender <- lme(ST_PREF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_left_int_gender <- lme(ST_PREM_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_ST_PREM_right_int_gender <- lme(ST_PREM_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_STR_left_int_gender <- lme(STR_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_STR_right_int_gender <- lme(STR_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_OCC_left_int_gender <- lme(T_OCC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_OCC_right_int_gender <- lme(T_OCC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PAR_left_int_gender <- lme(T_PAR_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PAR_right_int_gender <- lme(T_PAR_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_left_int_gender <- lme(T_POSTC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_POSTC_right_int_gender <- lme(T_POSTC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREC_left_int_gender <- lme(T_PREC_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREC_right_int_gender <- lme(T_PREC_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREF_left_int_gender <- lme(T_PREF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREF_right_int_gender <- lme(T_PREF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREM_left_int_gender <- lme(T_PREM_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_T_PREM_right_int_gender <- lme(T_PREM_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_UF_left_int_gender <- lme(UF_left~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+model_UF_right_int_gender <- lme(UF_right~ poly(age_c, 2) + poly(age_c, 2)*gender, data = data, random = ~1|SID, method = "ML")
+```
+
+```{r}
+int_gendertab1 <- sjPlot:: tab_model(model_AF_left_int_gender)
+int_gendertab2 <- sjPlot:: tab_model(model_AF_right_int_gender)
+int_gendertab3 <- sjPlot:: tab_model(model_ATR_left_int_gender)
+int_gendertab4 <- sjPlot:: tab_model(model_ATR_right_int_gender)
+int_gendertab5 <- sjPlot:: tab_model(model_CA_int_gender)
+int_gendertab6 <- sjPlot:: tab_model(model_CC1_int_gender)
+int_gendertab7 <- sjPlot:: tab_model(model_CC2_int_gender)
+int_gendertab8 <- sjPlot:: tab_model(model_CC3_int_gender)
+int_gendertab9 <- sjPlot:: tab_model(model_CC4_int_gender)
+int_gendertab10 <- sjPlot:: tab_model(model_CC5_int_gender)
+int_gendertab11 <- sjPlot:: tab_model(model_CC6_int_gender)
+int_gendertab12 <- sjPlot:: tab_model(model_CC7_int_gender)
+int_gendertab13 <- sjPlot:: tab_model(model_CG_left_int_gender)
+int_gendertab14 <- sjPlot:: tab_model(model_CG_right_int_gender)
+int_gendertab15 <- sjPlot:: tab_model(model_CST_left_int_gender)
+int_gendertab16 <- sjPlot:: tab_model(model_CST_right_int_gender)
+int_gendertab17 <- sjPlot:: tab_model(model_FPT_left_int_gender)
+int_gendertab18 <- sjPlot:: tab_model(model_FPT_right_int_gender)
+int_gendertab19 <- sjPlot:: tab_model(model_FX_left_int_gender)
+int_gendertab20 <- sjPlot:: tab_model(model_FX_right_int_gender)
+int_gendertab21 <- sjPlot:: tab_model(model_ICP_left_int_gender)
+int_gendertab22 <- sjPlot:: tab_model(model_ICP_right_int_gender)
+int_gendertab23 <- sjPlot:: tab_model(model_IFO_left_int_gender)
+int_gendertab24 <- sjPlot:: tab_model(model_IFO_right_int_gender)
+int_gendertab25 <- sjPlot:: tab_model(model_ILF_left_int_gender)
+int_gendertab26 <- sjPlot:: tab_model(model_ILF_right_int_gender)
+int_gendertab27 <- sjPlot:: tab_model(model_MCP_int_gender)
+int_gendertab28 <- sjPlot:: tab_model(model_MLF_left_int_gender)
+int_gendertab29 <- sjPlot:: tab_model(model_MLF_right_int_gender)
+int_gendertab30 <- sjPlot:: tab_model(model_OR_left_int_gender)
+int_gendertab31 <- sjPlot:: tab_model(model_OR_right_int_gender)
+int_gendertab32 <- sjPlot:: tab_model(model_POPT_left_int_gender)
+int_gendertab33 <- sjPlot:: tab_model(model_POPT_right_int_gender)
+int_gendertab34 <- sjPlot:: tab_model(model_SCP_left_int_gender)
+int_gendertab35 <- sjPlot:: tab_model(model_SCP_right_int_gender)
+int_gendertab36 <- sjPlot:: tab_model(model_SLF_I_left_int_gender)
+int_gendertab37 <- sjPlot:: tab_model(model_SLF_I_right_int_gender)
+int_gendertab38 <- sjPlot:: tab_model(model_SLF_II_left_int_gender)
+int_gendertab39 <- sjPlot:: tab_model(model_SLF_II_right_int_gender)
+int_gendertab40 <- sjPlot:: tab_model(model_SLF_III_left_int_gender)
+int_gendertab41 <- sjPlot:: tab_model(model_SLF_III_right_int_gender)
+int_gendertab42 <- sjPlot:: tab_model(model_ST_FO_left_int_gender)
+int_gendertab43 <- sjPlot:: tab_model(model_ST_FO_right_int_gender)
+int_gendertab44 <- sjPlot:: tab_model(model_ST_OCC_left_int_gender)
+int_gendertab45 <- sjPlot:: tab_model(model_ST_OCC_right_int_gender)
+int_gendertab46 <- sjPlot:: tab_model(model_ST_PAR_left_int_gender)
+int_gendertab47 <- sjPlot:: tab_model(model_ST_PAR_right_int_gender)
+int_gendertab48 <- sjPlot:: tab_model(model_ST_POSTC_left_int_gender)
+int_gendertab49 <- sjPlot:: tab_model(model_ST_POSTC_right_int_gender)
+int_gendertab50 <- sjPlot:: tab_model(model_ST_PREC_left_int_gender)
+int_gendertab51 <- sjPlot:: tab_model(model_ST_PREC_right_int_gender)
+int_gendertab52 <- sjPlot:: tab_model(model_ST_PREF_left_int_gender)
+int_gendertab53 <- sjPlot:: tab_model(model_ST_PREF_right_int_gender)
+int_gendertab54 <- sjPlot:: tab_model(model_ST_PREM_left_int_gender)
+int_gendertab55 <- sjPlot:: tab_model(model_ST_PREM_right_int_gender)
+int_gendertab56 <- sjPlot:: tab_model(model_STR_left_int_gender)
+int_gendertab57 <- sjPlot:: tab_model(model_STR_right_int_gender)
+int_gendertab58 <- sjPlot:: tab_model(model_T_OCC_left_int_gender)
+int_gendertab59 <- sjPlot:: tab_model(model_T_OCC_right_int_gender)
+int_gendertab60 <- sjPlot:: tab_model(model_T_PAR_left_int_gender)
+int_gendertab61 <- sjPlot:: tab_model(model_T_PAR_right_int_gender)
+int_gendertab62 <- sjPlot:: tab_model(model_T_POSTC_left_int_gender)
+int_gendertab63 <- sjPlot:: tab_model(model_T_POSTC_right_int_gender)
+int_gendertab64 <- sjPlot:: tab_model(model_T_PREC_left_int_gender)
+int_gendertab65 <- sjPlot:: tab_model(model_T_PREC_right_int_gender)
+int_gendertab66 <- sjPlot:: tab_model(model_T_PREF_left_int_gender)
+int_gendertab67 <- sjPlot:: tab_model(model_T_PREF_right_int_gender)
+int_gendertab68 <- sjPlot:: tab_model(model_T_PREM_left_int_gender)
+int_gendertab69 <- sjPlot:: tab_model(model_T_PREM_right_int_gender)
+int_gendertab70 <- sjPlot:: tab_model(model_UF_left_int_gender)
+int_gendertab71 <- sjPlot:: tab_model(model_UF_right_int_gender)
+```
+
+```{r}
+int_gendertab1_df <- sjtable2df::mtab2df(mtab = int_gendertab1, n_models = 1, output = "data.frame")
+int_gendertab2_df <- sjtable2df::mtab2df(mtab = int_gendertab2, n_models = 1, output = "data.frame")
+int_gendertab3_df <- sjtable2df::mtab2df(mtab = int_gendertab3, n_models = 1, output = "data.frame")
+int_gendertab4_df <- sjtable2df::mtab2df(mtab = int_gendertab4, n_models = 1, output = "data.frame")
+int_gendertab5_df <- sjtable2df::mtab2df(mtab = int_gendertab5, n_models = 1, output = "data.frame")
+int_gendertab6_df <- sjtable2df::mtab2df(mtab = int_gendertab6, n_models = 1, output = "data.frame")
+int_gendertab7_df <- sjtable2df::mtab2df(mtab = int_gendertab7, n_models = 1, output = "data.frame")
+int_gendertab8_df <- sjtable2df::mtab2df(mtab = int_gendertab8, n_models = 1, output = "data.frame")
+int_gendertab9_df <- sjtable2df::mtab2df(mtab = int_gendertab9, n_models = 1, output = "data.frame")
+int_gendertab10_df <- sjtable2df::mtab2df(mtab = int_gendertab10, n_models = 1, output = "data.frame")
+int_gendertab11_df <- sjtable2df::mtab2df(mtab = int_gendertab11, n_models = 1, output = "data.frame")
+int_gendertab12_df <- sjtable2df::mtab2df(mtab = int_gendertab12, n_models = 1, output = "data.frame")
+int_gendertab13_df <- sjtable2df::mtab2df(mtab = int_gendertab13, n_models = 1, output = "data.frame")
+int_gendertab14_df <- sjtable2df::mtab2df(mtab = int_gendertab14, n_models = 1, output = "data.frame")
+int_gendertab15_df <- sjtable2df::mtab2df(mtab = int_gendertab15, n_models = 1, output = "data.frame")
+int_gendertab16_df <- sjtable2df::mtab2df(mtab = int_gendertab16, n_models = 1, output = "data.frame")
+int_gendertab17_df <- sjtable2df::mtab2df(mtab = int_gendertab17, n_models = 1, output = "data.frame")
+int_gendertab18_df <- sjtable2df::mtab2df(mtab = int_gendertab18, n_models = 1, output = "data.frame")
+int_gendertab19_df <- sjtable2df::mtab2df(mtab = int_gendertab19, n_models = 1, output = "data.frame")
+int_gendertab20_df <- sjtable2df::mtab2df(mtab = int_gendertab20, n_models = 1, output = "data.frame")
+int_gendertab21_df <- sjtable2df::mtab2df(mtab = int_gendertab21, n_models = 1, output = "data.frame")
+int_gendertab22_df <- sjtable2df::mtab2df(mtab = int_gendertab22, n_models = 1, output = "data.frame")
+int_gendertab23_df <- sjtable2df::mtab2df(mtab = int_gendertab23, n_models = 1, output = "data.frame")
+int_gendertab24_df <- sjtable2df::mtab2df(mtab = int_gendertab24, n_models = 1, output = "data.frame")
+int_gendertab25_df <- sjtable2df::mtab2df(mtab = int_gendertab25, n_models = 1, output = "data.frame")
+int_gendertab26_df <- sjtable2df::mtab2df(mtab = int_gendertab26, n_models = 1, output = "data.frame")
+int_gendertab27_df <- sjtable2df::mtab2df(mtab = int_gendertab27, n_models = 1, output = "data.frame")
+int_gendertab28_df <- sjtable2df::mtab2df(mtab = int_gendertab28, n_models = 1, output = "data.frame")
+int_gendertab29_df <- sjtable2df::mtab2df(mtab = int_gendertab29, n_models = 1, output = "data.frame")
+int_gendertab30_df <- sjtable2df::mtab2df(mtab = int_gendertab30, n_models = 1, output = "data.frame")
+int_gendertab31_df <- sjtable2df::mtab2df(mtab = int_gendertab31, n_models = 1, output = "data.frame")
+int_gendertab32_df <- sjtable2df::mtab2df(mtab = int_gendertab32, n_models = 1, output = "data.frame")
+int_gendertab33_df <- sjtable2df::mtab2df(mtab = int_gendertab33, n_models = 1, output = "data.frame")
+int_gendertab34_df <- sjtable2df::mtab2df(mtab = int_gendertab34, n_models = 1, output = "data.frame")
+int_gendertab35_df <- sjtable2df::mtab2df(mtab = int_gendertab35, n_models = 1, output = "data.frame")
+int_gendertab36_df <- sjtable2df::mtab2df(mtab = int_gendertab36, n_models = 1, output = "data.frame")
+int_gendertab37_df <- sjtable2df::mtab2df(mtab = int_gendertab37, n_models = 1, output = "data.frame")
+int_gendertab38_df <- sjtable2df::mtab2df(mtab = int_gendertab38, n_models = 1, output = "data.frame")
+int_gendertab39_df <- sjtable2df::mtab2df(mtab = int_gendertab39, n_models = 1, output = "data.frame")
+int_gendertab40_df <- sjtable2df::mtab2df(mtab = int_gendertab40, n_models = 1, output = "data.frame")
+int_gendertab41_df <- sjtable2df::mtab2df(mtab = int_gendertab41, n_models = 1, output = "data.frame")
+int_gendertab42_df <- sjtable2df::mtab2df(mtab = int_gendertab42, n_models = 1, output = "data.frame")
+int_gendertab43_df <- sjtable2df::mtab2df(mtab = int_gendertab43, n_models = 1, output = "data.frame")
+int_gendertab44_df <- sjtable2df::mtab2df(mtab = int_gendertab44, n_models = 1, output = "data.frame")
+int_gendertab45_df <- sjtable2df::mtab2df(mtab = int_gendertab45, n_models = 1, output = "data.frame")
+int_gendertab46_df <- sjtable2df::mtab2df(mtab = int_gendertab46, n_models = 1, output = "data.frame")
+int_gendertab47_df <- sjtable2df::mtab2df(mtab = int_gendertab47, n_models = 1, output = "data.frame")
+int_gendertab48_df <- sjtable2df::mtab2df(mtab = int_gendertab48, n_models = 1, output = "data.frame")
+int_gendertab49_df <- sjtable2df::mtab2df(mtab = int_gendertab49, n_models = 1, output = "data.frame")
+int_gendertab50_df <- sjtable2df::mtab2df(mtab = int_gendertab50, n_models = 1, output = "data.frame")
+int_gendertab51_df <- sjtable2df::mtab2df(mtab = int_gendertab51, n_models = 1, output = "data.frame")
+int_gendertab52_df <- sjtable2df::mtab2df(mtab = int_gendertab52, n_models = 1, output = "data.frame")
+int_gendertab53_df <- sjtable2df::mtab2df(mtab = int_gendertab53, n_models = 1, output = "data.frame")
+int_gendertab54_df <- sjtable2df::mtab2df(mtab = int_gendertab54, n_models = 1, output = "data.frame")
+int_gendertab55_df <- sjtable2df::mtab2df(mtab = int_gendertab55, n_models = 1, output = "data.frame")
+int_gendertab56_df <- sjtable2df::mtab2df(mtab = int_gendertab56, n_models = 1, output = "data.frame")
+int_gendertab57_df <- sjtable2df::mtab2df(mtab = int_gendertab57, n_models = 1, output = "data.frame")
+int_gendertab58_df <- sjtable2df::mtab2df(mtab = int_gendertab58, n_models = 1, output = "data.frame")
+int_gendertab59_df <- sjtable2df::mtab2df(mtab = int_gendertab59, n_models = 1, output = "data.frame")
+int_gendertab60_df <- sjtable2df::mtab2df(mtab = int_gendertab60, n_models = 1, output = "data.frame")
+int_gendertab61_df <- sjtable2df::mtab2df(mtab = int_gendertab61, n_models = 1, output = "data.frame")
+int_gendertab62_df <- sjtable2df::mtab2df(mtab = int_gendertab62, n_models = 1, output = "data.frame")
+int_gendertab63_df <- sjtable2df::mtab2df(mtab = int_gendertab63, n_models = 1, output = "data.frame")
+int_gendertab64_df <- sjtable2df::mtab2df(mtab = int_gendertab64, n_models = 1, output = "data.frame")
+int_gendertab65_df <- sjtable2df::mtab2df(mtab = int_gendertab65, n_models = 1, output = "data.frame")
+int_gendertab66_df <- sjtable2df::mtab2df(mtab = int_gendertab66, n_models = 1, output = "data.frame")
+int_gendertab67_df <- sjtable2df::mtab2df(mtab = int_gendertab67, n_models = 1, output = "data.frame")
+int_gendertab68_df <- sjtable2df::mtab2df(mtab = int_gendertab68, n_models = 1, output = "data.frame")
+int_gendertab69_df <- sjtable2df::mtab2df(mtab = int_gendertab69, n_models = 1, output = "data.frame")
+int_gendertab70_df <- sjtable2df::mtab2df(mtab = int_gendertab70, n_models = 1, output = "data.frame")
+int_gendertab71_df <- sjtable2df::mtab2df(mtab = int_gendertab71, n_models = 1, output = "data.frame")
+```
+
+```{r}
+model_sum_int_gender <- rbind(int_gendertab1_df,
+int_gendertab2_df,
+int_gendertab3_df,
+int_gendertab4_df,
+int_gendertab5_df,
+int_gendertab6_df,
+int_gendertab7_df,
+int_gendertab8_df,
+int_gendertab9_df,
+int_gendertab10_df,
+int_gendertab11_df,
+int_gendertab12_df,
+int_gendertab13_df,
+int_gendertab14_df,
+int_gendertab15_df,
+int_gendertab16_df,
+int_gendertab17_df,
+int_gendertab18_df,
+int_gendertab19_df,
+int_gendertab20_df,
+int_gendertab21_df,
+int_gendertab22_df,
+int_gendertab23_df,
+int_gendertab24_df,
+int_gendertab25_df,
+int_gendertab26_df,
+int_gendertab27_df,
+int_gendertab28_df,
+int_gendertab29_df,
+int_gendertab30_df,
+int_gendertab31_df,
+int_gendertab32_df,
+int_gendertab33_df,
+int_gendertab34_df,
+int_gendertab35_df,
+int_gendertab36_df,
+int_gendertab37_df,
+int_gendertab38_df,
+int_gendertab39_df,
+int_gendertab40_df,
+int_gendertab41_df,
+int_gendertab42_df,
+int_gendertab43_df,
+int_gendertab44_df,
+int_gendertab45_df,
+int_gendertab46_df,
+int_gendertab47_df,
+int_gendertab48_df,
+int_gendertab49_df,
+int_gendertab50_df,
+int_gendertab51_df,
+int_gendertab52_df,
+int_gendertab53_df,
+int_gendertab54_df,
+int_gendertab55_df,
+int_gendertab56_df,
+int_gendertab57_df,
+int_gendertab58_df,
+int_gendertab59_df,
+int_gendertab60_df,
+int_gendertab61_df,
+int_gendertab62_df,
+int_gendertab63_df,
+int_gendertab64_df,
+int_gendertab65_df,
+int_gendertab66_df,
+int_gendertab67_df,
+int_gendertab68_df,
+int_gendertab69_df,
+int_gendertab70_df,
+int_gendertab71_df)
+```
+
+```{r}
+model_sum_int_gender
+write.csv(model_sum_int_gender, "model_sum_quad_gender_int.csv")
+```
+
+#Model Comparison 1 - Lin V Quad Age
+```{r}
+AF_left_model_comp_age <- anova(model_AF_left_age2, model_AF_left_quad)
+AF_right_model_comp_age <- anova(model_AF_right_age2, model_AF_right_quad)
+ATR_left_model_comp_age <- anova(model_ATR_left_age2, model_ATR_left_quad)
+ATR_right_model_comp_age <- anova(model_ATR_right_age2, model_ATR_right_quad)
+CA_model_comp_age <- anova(model_CA_age2, model_CA_quad)
+CC1_model_comp_age <- anova(model_CC1_age2, model_CC1_quad)
+CC2_model_comp_age <- anova(model_CC2_age2, model_CC2_quad)
+CC3_model_comp_age <- anova(model_CC3_age2, model_CC3_quad)
+CC4_model_comp_age <- anova(model_CC4_age2, model_CC4_quad)
+CC5_model_comp_age <- anova(model_CC5_age2, model_CC5_quad)
+CC6_model_comp_age <- anova(model_CC6_age2, model_CC6_quad)
+CC7_model_comp_age <- anova(model_CC7_age2, model_CC7_quad)
+CG_left_model_comp_age <- anova(model_CG_left_age2, model_CG_left_quad)
+CG_right_model_comp_age <- anova(model_CG_right_age2, model_CG_right_quad)
+CST_left_model_comp_age <- anova(model_CST_left_age2, model_CST_left_quad)
+CST_right_model_comp_age <- anova(model_CST_right_age2, model_CST_right_quad)
+FPT_left_model_comp_age <- anova(model_FPT_left_age2, model_FPT_left_quad)
+FPT_right_model_comp_age <- anova(model_FPT_right_age2, model_FPT_right_quad)
+FX_left_model_comp_age <- anova(model_FX_left_age2, model_FX_left_quad)
+FX_right_model_comp_age <- anova(model_FX_right_age2, model_FX_right_quad)
+ICP_left_model_comp_age <- anova(model_ICP_left_age2, model_ICP_left_quad)
+ICP_right_model_comp_age <- anova(model_ICP_right_age2, model_ICP_right_quad)
+IFO_left_model_comp_age <- anova(model_IFO_left_age2, model_IFO_left_quad)
+IFO_right_model_comp_age <- anova(model_IFO_right_age2, model_IFO_right_quad)
+ILF_left_model_comp_age <- anova(model_ILF_left_age2, model_ILF_left_quad)
+ILF_right_model_comp_age <- anova(model_ILF_right_age2, model_ILF_right_quad)
+MCP_model_comp_age <- anova(model_MCP_age2, model_MCP_quad)
+MLF_left_model_comp_age <- anova(model_MLF_left_age2, model_MLF_left_quad)
+MLF_right_model_comp_age <- anova(model_MLF_right_age2, model_MLF_right_quad)
+OR_left_model_comp_age <- anova(model_OR_left_age2, model_OR_left_quad)
+OR_right_model_comp_age <- anova(model_OR_right_age2, model_OR_right_quad)
+POPT_left_model_comp_age <- anova(model_POPT_left_age2, model_POPT_left_quad)
+POPT_right_model_comp_age <- anova(model_POPT_right_age2, model_POPT_right_quad)
+SCP_left_model_comp_age <- anova(model_SCP_left_age2, model_SCP_left_quad)
+SCP_right_model_comp_age <- anova(model_SCP_right_age2, model_SCP_right_quad)
+SLF_I_left_model_comp_age <- anova(model_SLF_I_left_age2, model_SLF_I_left_quad)
+SLF_I_right_model_comp_age <- anova(model_SLF_I_right_age2, model_SLF_I_right_quad)
+SLF_II_left_model_comp_age <- anova(model_SLF_II_left_age2, model_SLF_II_left_quad)
+SLF_II_right_model_comp_age <- anova(model_SLF_II_right_age2, model_SLF_II_right_quad)
+SLF_III_left_model_comp_age <- anova(model_SLF_III_left_age2, model_SLF_III_left_quad)
+SLF_III_right_model_comp_age <- anova(model_SLF_III_right_age2, model_SLF_III_right_quad)
+ST_FO_left_model_comp_age <- anova(model_ST_FO_left_age2, model_ST_FO_left_quad)
+ST_FO_right_model_comp_age <- anova(model_ST_FO_right_age2, model_ST_FO_right_quad)
+ST_OCC_left_model_comp_age <- anova(model_ST_OCC_left_age2, model_ST_OCC_left_quad)
+ST_OCC_right_model_comp_age <- anova(model_ST_OCC_right_age2, model_ST_OCC_right_quad)
+ST_PAR_left_model_comp_age <- anova(model_ST_PAR_left_age2, model_ST_PAR_left_quad)
+ST_PAR_right_model_comp_age <- anova(model_ST_PAR_right_age2, model_ST_PAR_right_quad)
+ST_POSTC_left_model_comp_age <- anova(model_ST_POSTC_left_age2, model_ST_POSTC_left_quad)
+ST_POSTC_right_model_comp_age <- anova(model_ST_POSTC_right_age2, model_ST_POSTC_right_quad)
+ST_PREC_left_model_comp_age <- anova(model_ST_PREC_left_age2, model_ST_PREC_left_quad)
+ST_PREC_right_model_comp_age <- anova(model_ST_PREC_right_age2, model_ST_PREC_right_quad)
+ST_PREF_left_model_comp_age <- anova(model_ST_PREF_left_age2, model_ST_PREF_left_quad)
+ST_PREF_right_model_comp_age <- anova(model_ST_PREF_right_age2, model_ST_PREF_right_quad)
+ST_PREM_left_model_comp_age <- anova(model_ST_PREM_left_age2, model_ST_PREM_left_quad)
+ST_PREM_right_model_comp_age <- anova(model_ST_PREM_right_age2, model_ST_PREM_right_quad)
+STR_left_model_comp_age <- anova(model_STR_left_age2, model_STR_left_quad)
+STR_right_model_comp_age <- anova(model_STR_right_age2, model_STR_right_quad)
+T_OCC_left_model_comp_age <- anova(model_T_OCC_left_age2, model_T_OCC_left_quad)
+T_OCC_right_model_comp_age <- anova(model_T_OCC_right_age2, model_T_OCC_right_quad)
+T_PAR_left_model_comp_age <- anova(model_T_PAR_left_age2, model_T_PAR_left_quad)
+T_PAR_right_model_comp_age <- anova(model_T_PAR_right_age2, model_T_PAR_right_quad)
+T_POSTC_left_model_comp_age <- anova(model_T_POSTC_left_age2, model_T_POSTC_left_quad)
+T_POSTC_right_model_comp_age <- anova(model_T_POSTC_right_age2, model_T_POSTC_right_quad)
+T_PREC_left_model_comp_age <- anova(model_T_PREC_left_age2, model_T_PREC_left_quad)
+T_PREC_right_model_comp_age <- anova(model_T_PREC_right_age2, model_T_PREC_right_quad)
+T_PREF_left_model_comp_age <- anova(model_T_PREF_left_age2, model_T_PREF_left_quad)
+T_PREF_right_model_comp_age <- anova(model_T_PREF_right_age2, model_T_PREF_right_quad)
+T_PREM_left_model_comp_age <- anova(model_T_PREM_left_age2, model_T_PREM_left_quad)
+T_PREM_right_model_comp_age <- anova(model_T_PREM_right_age2, model_T_PREM_right_quad)
+UF_left_model_comp_age <- anova(model_UF_left_age2, model_UF_left_quad)
+UF_right_model_comp_age <- anova(model_UF_right_age2, model_UF_right_quad)
+```
+
+```{r}
+age_model_comp <- rbind(AF_left_model_comp_age,
+AF_right_model_comp_age,
+ATR_left_model_comp_age,
+ATR_right_model_comp_age,
+CA_model_comp_age,
+CC1_model_comp_age,
+CC2_model_comp_age,
+CC3_model_comp_age,
+CC4_model_comp_age,
+CC5_model_comp_age,
+CC6_model_comp_age,
+CC7_model_comp_age,
+CG_left_model_comp_age,
+CG_right_model_comp_age,
+CST_left_model_comp_age,
+CST_right_model_comp_age,
+FPT_left_model_comp_age,
+FPT_right_model_comp_age,
+FX_left_model_comp_age,
+FX_right_model_comp_age,
+ICP_left_model_comp_age,
+ICP_right_model_comp_age,
+IFO_left_model_comp_age,
+IFO_right_model_comp_age,
+ILF_left_model_comp_age,
+ILF_right_model_comp_age,
+MCP_model_comp_age,
+MLF_left_model_comp_age,
+MLF_right_model_comp_age,
+OR_left_model_comp_age,
+OR_right_model_comp_age,
+POPT_left_model_comp_age,
+POPT_right_model_comp_age,
+SCP_left_model_comp_age,
+SCP_right_model_comp_age,
+SLF_I_left_model_comp_age,
+SLF_I_right_model_comp_age,
+SLF_II_left_model_comp_age,
+SLF_II_right_model_comp_age,
+SLF_III_left_model_comp_age,
+SLF_III_right_model_comp_age,
+ST_FO_left_model_comp_age,
+ST_FO_right_model_comp_age,
+ST_OCC_left_model_comp_age,
+ST_OCC_right_model_comp_age,
+ST_PAR_left_model_comp_age,
+ST_PAR_right_model_comp_age,
+ST_POSTC_left_model_comp_age,
+ST_POSTC_right_model_comp_age,
+ST_PREC_left_model_comp_age,
+ST_PREC_right_model_comp_age,
+ST_PREF_left_model_comp_age,
+ST_PREF_right_model_comp_age,
+ST_PREM_left_model_comp_age,
+ST_PREM_right_model_comp_age,
+STR_left_model_comp_age,
+STR_right_model_comp_age,
+T_OCC_left_model_comp_age,
+T_OCC_right_model_comp_age,
+T_PAR_left_model_comp_age,
+T_PAR_right_model_comp_age,
+T_POSTC_left_model_comp_age,
+T_POSTC_right_model_comp_age,
+T_PREC_left_model_comp_age,
+T_PREC_right_model_comp_age,
+T_PREF_left_model_comp_age,
+T_PREF_right_model_comp_age,
+T_PREM_left_model_comp_age,
+T_PREM_right_model_comp_age,
+UF_left_model_comp_age,
+UF_right_model_comp_age)
+```
+
+```{r}
+age_model_comp
+write.csv(age_model_comp, "age_model_comp1.csv")
+```
+```{r}
+pvals_age <- 
+c(0.000059575,
+0.00031433,
+0.00102662,
+0.00194647,
+0.000074544,
+0.11384562,
+0.00898086,
+0.00570798,
+0.000077671,
+0.000056847,
+0.000051471,
+0.000014949,
+0.00121571,
+0.00096994,
+0.00030165,
+0.00038958,
+0.00148566,
+0.00468361,
+0.00455082,
+0.00743392,
+0.00080118,
+0.02808082,
+0.00109865,
+0.00044177,
+0.000053057,
+0.00012711,
+0.00174803,
+0.000050787,
+0.00014451,
+0.000054932,
+0.000032402,
+0.00016765,
+0.00031189,
+0.00038968,
+0.00047945,
+0.00006492,
+0.00012016,
+0.000081733,
+0.000025571,
+0.00062146,
+0.00029115,
+0.00533123,
+0.01298635,
+0.000023779,
+0.000036711,
+0.000048381,
+0.00010721,
+0.00005008,
+0.00011527,
+0.000074956,
+0.00012622,
+0.0010201,
+0.00217541,
+0.00026781,
+0.00051116,
+0.00020938,
+0.00016046,
+0.000025954,
+0.15077164,
+0.000075445,
+0.000097252,
+0.00008284,
+0.00012775,
+0.00010778,
+0.0001385,
+0.00076747,
+0.00138718,
+0.00044631,
+0.00058834,
+0.0004944,
+0.00151046)
+
+fdr_pvals_age <- p.adjust(pvals_age, method = "fdr")
+
+write.csv(fdr_pvals_age, "pvals_age.csv")
+```
+
+#Model Comparison 2 - Quad V Gender
+```{r}
+AF_left_model_comp_gender <- anova(model_AF_left_quad, model_AF_left_gender)
+AF_right_model_comp_gender <- anova(model_AF_right_quad, model_AF_right_gender)
+ATR_left_model_comp_gender <- anova(model_ATR_left_quad, model_ATR_left_gender)
+ATR_right_model_comp_gender <- anova(model_ATR_right_quad, model_ATR_right_gender)
+CA_model_comp_gender <- anova(model_CA_quad, model_CA_gender)
+CC1_model_comp_gender <- anova(model_CC1_quad, model_CC1_gender)
+CC2_model_comp_gender <- anova(model_CC2_quad, model_CC2_gender)
+CC3_model_comp_gender <- anova(model_CC3_quad, model_CC3_gender)
+CC4_model_comp_gender <- anova(model_CC4_quad, model_CC4_gender)
+CC5_model_comp_gender <- anova(model_CC5_quad, model_CC5_gender)
+CC6_model_comp_gender <- anova(model_CC6_quad, model_CC6_gender)
+CC7_model_comp_gender <- anova(model_CC7_quad, model_CC7_gender)
+CG_left_model_comp_gender <- anova(model_CG_left_quad, model_CG_left_gender)
+CG_right_model_comp_gender <- anova(model_CG_right_quad, model_CG_right_gender)
+CST_left_model_comp_gender <- anova(model_CST_left_quad, model_CST_left_gender)
+CST_right_model_comp_gender <- anova(model_CST_right_quad, model_CST_right_gender)
+FPT_left_model_comp_gender <- anova(model_FPT_left_quad, model_FPT_left_gender)
+FPT_right_model_comp_gender <- anova(model_FPT_right_quad, model_FPT_right_gender)
+FX_left_model_comp_gender <- anova(model_FX_left_quad, model_FX_left_gender)
+FX_right_model_comp_gender <- anova(model_FX_right_quad, model_FX_right_gender)
+ICP_left_model_comp_gender <- anova(model_ICP_left_quad, model_ICP_left_gender)
+ICP_right_model_comp_gender <- anova(model_ICP_right_quad, model_ICP_right_gender)
+IFO_left_model_comp_gender <- anova(model_IFO_left_quad, model_IFO_left_gender)
+IFO_right_model_comp_gender <- anova(model_IFO_right_quad, model_IFO_right_gender)
+ILF_left_model_comp_gender <- anova(model_ILF_left_quad, model_ILF_left_gender)
+ILF_right_model_comp_gender <- anova(model_ILF_right_quad, model_ILF_right_gender)
+MCP_model_comp_gender <- anova(model_MCP_quad, model_MCP_gender)
+MLF_left_model_comp_gender <- anova(model_MLF_left_quad, model_MLF_left_gender)
+MLF_right_model_comp_gender <- anova(model_MLF_right_quad, model_MLF_right_gender)
+OR_left_model_comp_gender <- anova(model_OR_left_quad, model_OR_left_gender)
+OR_right_model_comp_gender <- anova(model_OR_right_quad, model_OR_right_gender)
+POPT_left_model_comp_gender <- anova(model_POPT_left_quad, model_POPT_left_gender)
+POPT_right_model_comp_gender <- anova(model_POPT_right_quad, model_POPT_right_gender)
+SCP_left_model_comp_gender <- anova(model_SCP_left_quad, model_SCP_left_gender)
+SCP_right_model_comp_gender <- anova(model_SCP_right_quad, model_SCP_right_gender)
+SLF_I_left_model_comp_gender <- anova(model_SLF_I_left_quad, model_SLF_I_left_gender)
+SLF_I_right_model_comp_gender <- anova(model_SLF_I_right_quad, model_SLF_I_right_gender)
+SLF_II_left_model_comp_gender <- anova(model_SLF_II_left_quad, model_SLF_II_left_gender)
+SLF_II_right_model_comp_gender <- anova(model_SLF_II_right_quad, model_SLF_II_right_gender)
+SLF_III_left_model_comp_gender <- anova(model_SLF_III_left_quad, model_SLF_III_left_gender)
+SLF_III_right_model_comp_gender <- anova(model_SLF_III_right_quad, model_SLF_III_right_gender)
+ST_FO_left_model_comp_gender <- anova(model_ST_FO_left_quad, model_ST_FO_left_gender)
+ST_FO_right_model_comp_gender <- anova(model_ST_FO_right_quad, model_ST_FO_right_gender)
+ST_OCC_left_model_comp_gender <- anova(model_ST_OCC_left_quad, model_ST_OCC_left_gender)
+ST_OCC_right_model_comp_gender <- anova(model_ST_OCC_right_quad, model_ST_OCC_right_gender)
+ST_PAR_left_model_comp_gender <- anova(model_ST_PAR_left_quad, model_ST_PAR_left_gender)
+ST_PAR_right_model_comp_gender <- anova(model_ST_PAR_right_quad, model_ST_PAR_right_gender)
+ST_POSTC_left_model_comp_gender <- anova(model_ST_POSTC_left_quad, model_ST_POSTC_left_gender)
+ST_POSTC_right_model_comp_gender <- anova(model_ST_POSTC_right_quad, model_ST_POSTC_right_gender)
+ST_PREC_left_model_comp_gender <- anova(model_ST_PREC_left_quad, model_ST_PREC_left_gender)
+ST_PREC_right_model_comp_gender <- anova(model_ST_PREC_right_quad, model_ST_PREC_right_gender)
+ST_PREF_left_model_comp_gender <- anova(model_ST_PREF_left_quad, model_ST_PREF_left_gender)
+ST_PREF_right_model_comp_gender <- anova(model_ST_PREF_right_quad, model_ST_PREF_right_gender)
+ST_PREM_left_model_comp_gender <- anova(model_ST_PREM_left_quad, model_ST_PREM_left_gender)
+ST_PREM_right_model_comp_gender <- anova(model_ST_PREM_right_quad, model_ST_PREM_right_gender)
+STR_left_model_comp_gender <- anova(model_STR_left_quad, model_STR_left_gender)
+STR_right_model_comp_gender <- anova(model_STR_right_quad, model_STR_right_gender)
+T_OCC_left_model_comp_gender <- anova(model_T_OCC_left_quad, model_T_OCC_left_gender)
+T_OCC_right_model_comp_gender <- anova(model_T_OCC_right_quad, model_T_OCC_right_gender)
+T_PAR_left_model_comp_gender <- anova(model_T_PAR_left_quad, model_T_PAR_left_gender)
+T_PAR_right_model_comp_gender <- anova(model_T_PAR_right_quad, model_T_PAR_right_gender)
+T_POSTC_left_model_comp_gender <- anova(model_T_POSTC_left_quad, model_T_POSTC_left_gender)
+T_POSTC_right_model_comp_gender <- anova(model_T_POSTC_right_quad, model_T_POSTC_right_gender)
+T_PREC_left_model_comp_gender <- anova(model_T_PREC_left_quad, model_T_PREC_left_gender)
+T_PREC_right_model_comp_gender <- anova(model_T_PREC_right_quad, model_T_PREC_right_gender)
+T_PREF_left_model_comp_gender <- anova(model_T_PREF_left_quad, model_T_PREF_left_gender)
+T_PREF_right_model_comp_gender <- anova(model_T_PREF_right_quad, model_T_PREF_right_gender)
+T_PREM_left_model_comp_gender <- anova(model_T_PREM_left_quad, model_T_PREM_left_gender)
+T_PREM_right_model_comp_gender <- anova(model_T_PREM_right_quad, model_T_PREM_right_gender)
+UF_left_model_comp_gender <- anova(model_UF_left_quad, model_UF_left_gender)
+UF_right_model_comp_gender <- anova(model_UF_right_quad, model_UF_right_gender)
+```
+
+```{r}
+age_model_comp2 <- rbind(AF_left_model_comp_gender,
+AF_right_model_comp_gender,
+ATR_left_model_comp_gender,
+ATR_right_model_comp_gender,
+CA_model_comp_gender,
+CC1_model_comp_gender,
+CC2_model_comp_gender,
+CC3_model_comp_gender,
+CC4_model_comp_gender,
+CC5_model_comp_gender,
+CC6_model_comp_gender,
+CC7_model_comp_gender,
+CG_left_model_comp_gender,
+CG_right_model_comp_gender,
+CST_left_model_comp_gender,
+CST_right_model_comp_gender,
+FPT_left_model_comp_gender,
+FPT_right_model_comp_gender,
+FX_left_model_comp_gender,
+FX_right_model_comp_gender,
+ICP_left_model_comp_gender,
+ICP_right_model_comp_gender,
+IFO_left_model_comp_gender,
+IFO_right_model_comp_gender,
+ILF_left_model_comp_gender,
+ILF_right_model_comp_gender,
+MCP_model_comp_gender,
+MLF_left_model_comp_gender,
+MLF_right_model_comp_gender,
+OR_left_model_comp_gender,
+OR_right_model_comp_gender,
+POPT_left_model_comp_gender,
+POPT_right_model_comp_gender,
+SCP_left_model_comp_gender,
+SCP_right_model_comp_gender,
+SLF_I_left_model_comp_gender,
+SLF_I_right_model_comp_gender,
+SLF_II_left_model_comp_gender,
+SLF_II_right_model_comp_gender,
+SLF_III_left_model_comp_gender,
+SLF_III_right_model_comp_gender,
+ST_FO_left_model_comp_gender,
+ST_FO_right_model_comp_gender,
+ST_OCC_left_model_comp_gender,
+ST_OCC_right_model_comp_gender,
+ST_PAR_left_model_comp_gender,
+ST_PAR_right_model_comp_gender,
+ST_POSTC_left_model_comp_gender,
+ST_POSTC_right_model_comp_gender,
+ST_PREC_left_model_comp_gender,
+ST_PREC_right_model_comp_gender,
+ST_PREF_left_model_comp_gender,
+ST_PREF_right_model_comp_gender,
+ST_PREM_left_model_comp_gender,
+ST_PREM_right_model_comp_gender,
+STR_left_model_comp_gender,
+STR_right_model_comp_gender,
+T_OCC_left_model_comp_gender,
+T_OCC_right_model_comp_gender,
+T_PAR_left_model_comp_gender,
+T_PAR_right_model_comp_gender,
+T_POSTC_left_model_comp_gender,
+T_POSTC_right_model_comp_gender,
+T_PREC_left_model_comp_gender,
+T_PREC_right_model_comp_gender,
+T_PREF_left_model_comp_gender,
+T_PREF_right_model_comp_gender,
+T_PREM_left_model_comp_gender,
+T_PREM_right_model_comp_gender,
+UF_left_model_comp_gender,
+UF_right_model_comp_gender)
+```
+
+```{r}
+age_model_comp2
+write.csv(age_model_comp2, "age_model_comp2.csv")
+```
+
+```{r}
+pvals_gender <- 
+c(0.13423853,
+0.085340856,
+0.072116752,
+0.08490523,
+0.165520301,
+0.089737856,
+0.070549535,
+0.108736107,
+0.068827378,
+0.101530675,
+0.09578378,
+0.11456637,
+0.042268431,
+0.092503936,
+0.066085138,
+0.048389782,
+0.040344298,
+0.042907798,
+0.373381571,
+0.168809901,
+0.225187529,
+0.205047383,
+0.093289803,
+0.08105281,
+0.167771998,
+0.123127163,
+0.147100567,
+0.116559843,
+0.094528028,
+0.108717265,
+0.107178443,
+0.087102654,
+0.072705093,
+0.099263758,
+0.136817823,
+0.136910891,
+0.144237039,
+0.155555885,
+0.069046294,
+0.087933489,
+0.068791019,
+0.083056612,
+0.089653519,
+0.141328557,
+0.10017906,
+0.119828061,
+0.089588186,
+0.112635413,
+0.101094195,
+0.084919831,
+0.068671329,
+0.063840652,
+0.091290819,
+0.142496637,
+0.153045171,
+0.043441671,
+0.059655483,
+0.114915412,
+0.905045532,
+0.111325789,
+0.087767049,
+0.10020062,
+0.096952591,
+0.071156099,
+0.055026071,
+0.052593996,
+0.085422275,
+0.105308703,
+0.120204305,
+0.111406884,
+0.12479026)
+
+fdr_pvals_gender <- p.adjust(pvals_gender, method = "fdr")
+
+write.csv(fdr_pvals_gender, "pvals_gender.csv")
+```
+
+#Model Comparison 3 - Gender V Age*Gender
+```{r}
+AF_left_model_comp_int_gender <- anova(model_AF_left_gender, model_AF_left_int_gender)
+AF_right_model_comp_int_gender <- anova(model_AF_right_gender, model_AF_right_int_gender)
+ATR_left_model_comp_int_gender <- anova(model_ATR_left_gender, model_ATR_left_int_gender)
+ATR_right_model_comp_int_gender <- anova(model_ATR_right_gender, model_ATR_right_int_gender)
+CA_model_comp_int_gender <- anova(model_CA_gender, model_CA_int_gender)
+CC1_model_comp_int_gender <- anova(model_CC1_gender, model_CC1_int_gender)
+CC2_model_comp_int_gender <- anova(model_CC2_gender, model_CC2_int_gender)
+CC3_model_comp_int_gender <- anova(model_CC3_gender, model_CC3_int_gender)
+CC4_model_comp_int_gender <- anova(model_CC4_gender, model_CC4_int_gender)
+CC5_model_comp_int_gender <- anova(model_CC5_gender, model_CC5_int_gender)
+CC6_model_comp_int_gender <- anova(model_CC6_gender, model_CC6_int_gender)
+CC7_model_comp_int_gender <- anova(model_CC7_gender, model_CC7_int_gender)
+CG_left_model_comp_int_gender <- anova(model_CG_left_gender, model_CG_left_int_gender)
+CG_right_model_comp_int_gender <- anova(model_CG_right_gender, model_CG_right_int_gender)
+CST_left_model_comp_int_gender <- anova(model_CST_left_gender, model_CST_left_int_gender)
+CST_right_model_comp_int_gender <- anova(model_CST_right_gender, model_CST_right_int_gender)
+FPT_left_model_comp_int_gender <- anova(model_FPT_left_gender, model_FPT_left_int_gender)
+FPT_right_model_comp_int_gender <- anova(model_FPT_right_gender, model_FPT_right_int_gender)
+FX_left_model_comp_int_gender <- anova(model_FX_left_gender, model_FX_left_int_gender)
+FX_right_model_comp_int_gender <- anova(model_FX_right_gender, model_FX_right_int_gender)
+ICP_left_model_comp_int_gender <- anova(model_ICP_left_gender, model_ICP_left_int_gender)
+ICP_right_model_comp_int_gender <- anova(model_ICP_right_gender, model_ICP_right_int_gender)
+IFO_left_model_comp_int_gender <- anova(model_IFO_left_gender, model_IFO_left_int_gender)
+IFO_right_model_comp_int_gender <- anova(model_IFO_right_gender, model_IFO_right_int_gender)
+ILF_left_model_comp_int_gender <- anova(model_ILF_left_gender, model_ILF_left_int_gender)
+ILF_right_model_comp_int_gender <- anova(model_ILF_right_gender, model_ILF_right_int_gender)
+MCP_model_comp_int_gender <- anova(model_MCP_gender, model_MCP_int_gender)
+MLF_left_model_comp_int_gender <- anova(model_MLF_left_gender, model_MLF_left_int_gender)
+MLF_right_model_comp_int_gender <- anova(model_MLF_right_gender, model_MLF_right_int_gender)
+OR_left_model_comp_int_gender <- anova(model_OR_left_gender, model_OR_left_int_gender)
+OR_right_model_comp_int_gender <- anova(model_OR_right_gender, model_OR_right_int_gender)
+POPT_left_model_comp_int_gender <- anova(model_POPT_left_gender, model_POPT_left_int_gender)
+POPT_right_model_comp_int_gender <- anova(model_POPT_right_gender, model_POPT_right_int_gender)
+SCP_left_model_comp_int_gender <- anova(model_SCP_left_gender, model_SCP_left_int_gender)
+SCP_right_model_comp_int_gender <- anova(model_SCP_right_gender, model_SCP_right_int_gender)
+SLF_I_left_model_comp_int_gender <- anova(model_SLF_I_left_gender, model_SLF_I_left_int_gender)
+SLF_I_right_model_comp_int_gender <- anova(model_SLF_I_right_gender, model_SLF_I_right_int_gender)
+SLF_II_left_model_comp_int_gender <- anova(model_SLF_II_left_gender, model_SLF_II_left_int_gender)
+SLF_II_right_model_comp_int_gender <- anova(model_SLF_II_right_gender, model_SLF_II_right_int_gender)
+SLF_III_left_model_comp_int_gender <- anova(model_SLF_III_left_gender, model_SLF_III_left_int_gender)
+SLF_III_right_model_comp_int_gender <- anova(model_SLF_III_right_gender, model_SLF_III_right_int_gender)
+ST_FO_left_model_comp_int_gender <- anova(model_ST_FO_left_gender, model_ST_FO_left_int_gender)
+ST_FO_right_model_comp_int_gender <- anova(model_ST_FO_right_gender, model_ST_FO_right_int_gender)
+ST_OCC_left_model_comp_int_gender <- anova(model_ST_OCC_left_gender, model_ST_OCC_left_int_gender)
+ST_OCC_right_model_comp_int_gender <- anova(model_ST_OCC_right_gender, model_ST_OCC_right_int_gender)
+ST_PAR_left_model_comp_int_gender <- anova(model_ST_PAR_left_gender, model_ST_PAR_left_int_gender)
+ST_PAR_right_model_comp_int_gender <- anova(model_ST_PAR_right_gender, model_ST_PAR_right_int_gender)
+ST_POSTC_left_model_comp_int_gender <- anova(model_ST_POSTC_left_gender, model_ST_POSTC_left_int_gender)
+ST_POSTC_right_model_comp_int_gender <- anova(model_ST_POSTC_right_gender, model_ST_POSTC_right_int_gender)
+ST_PREC_left_model_comp_int_gender <- anova(model_ST_PREC_left_gender, model_ST_PREC_left_int_gender)
+ST_PREC_right_model_comp_int_gender <- anova(model_ST_PREC_right_gender, model_ST_PREC_right_int_gender)
+ST_PREF_left_model_comp_int_gender <- anova(model_ST_PREF_left_gender, model_ST_PREF_left_int_gender)
+ST_PREF_right_model_comp_int_gender <- anova(model_ST_PREF_right_gender, model_ST_PREF_right_int_gender)
+ST_PREM_left_model_comp_int_gender <- anova(model_ST_PREM_left_gender, model_ST_PREM_left_int_gender)
+ST_PREM_right_model_comp_int_gender <- anova(model_ST_PREM_right_gender, model_ST_PREM_right_int_gender)
+STR_left_model_comp_int_gender <- anova(model_STR_left_gender, model_STR_left_int_gender)
+STR_right_model_comp_int_gender <- anova(model_STR_right_gender, model_STR_right_int_gender)
+T_OCC_left_model_comp_int_gender <- anova(model_T_OCC_left_gender, model_T_OCC_left_int_gender)
+T_OCC_right_model_comp_int_gender <- anova(model_T_OCC_right_gender, model_T_OCC_right_int_gender)
+T_PAR_left_model_comp_int_gender <- anova(model_T_PAR_left_gender, model_T_PAR_left_int_gender)
+T_PAR_right_model_comp_int_gender <- anova(model_T_PAR_right_gender, model_T_PAR_right_int_gender)
+T_POSTC_left_model_comp_int_gender <- anova(model_T_POSTC_left_gender, model_T_POSTC_left_int_gender)
+T_POSTC_right_model_comp_int_gender <- anova(model_T_POSTC_right_gender, model_T_POSTC_right_int_gender)
+T_PREC_left_model_comp_int_gender <- anova(model_T_PREC_left_gender, model_T_PREC_left_int_gender)
+T_PREC_right_model_comp_int_gender <- anova(model_T_PREC_right_gender, model_T_PREC_right_int_gender)
+T_PREF_left_model_comp_int_gender <- anova(model_T_PREF_left_gender, model_T_PREF_left_int_gender)
+T_PREF_right_model_comp_int_gender <- anova(model_T_PREF_right_gender, model_T_PREF_right_int_gender)
+T_PREM_left_model_comp_int_gender <- anova(model_T_PREM_left_gender, model_T_PREM_left_int_gender)
+T_PREM_right_model_comp_int_gender <- anova(model_T_PREM_right_gender, model_T_PREM_right_int_gender)
+UF_left_model_comp_int_gender <- anova(model_UF_left_gender, model_UF_left_int_gender)
+UF_right_model_comp_int_gender <- anova(model_UF_right_gender, model_UF_right_int_gender)
+```
+
+```{r}
+age_model_comp3 <- rbind(AF_left_model_comp_int_gender,
+AF_right_model_comp_int_gender,
+ATR_left_model_comp_int_gender,
+ATR_right_model_comp_int_gender,
+CA_model_comp_int_gender,
+CC1_model_comp_int_gender,
+CC2_model_comp_int_gender,
+CC3_model_comp_int_gender,
+CC4_model_comp_int_gender,
+CC5_model_comp_int_gender,
+CC6_model_comp_int_gender,
+CC7_model_comp_int_gender,
+CG_left_model_comp_int_gender,
+CG_right_model_comp_int_gender,
+CST_left_model_comp_int_gender,
+CST_right_model_comp_int_gender,
+FPT_left_model_comp_int_gender,
+FPT_right_model_comp_int_gender,
+FX_left_model_comp_int_gender,
+FX_right_model_comp_int_gender,
+ICP_left_model_comp_int_gender,
+ICP_right_model_comp_int_gender,
+IFO_left_model_comp_int_gender,
+IFO_right_model_comp_int_gender,
+ILF_left_model_comp_int_gender,
+ILF_right_model_comp_int_gender,
+MCP_model_comp_int_gender,
+MLF_left_model_comp_int_gender,
+MLF_right_model_comp_int_gender,
+OR_left_model_comp_int_gender,
+OR_right_model_comp_int_gender,
+POPT_left_model_comp_int_gender,
+POPT_right_model_comp_int_gender,
+SCP_left_model_comp_int_gender,
+SCP_right_model_comp_int_gender,
+SLF_I_left_model_comp_int_gender,
+SLF_I_right_model_comp_int_gender,
+SLF_II_left_model_comp_int_gender,
+SLF_II_right_model_comp_int_gender,
+SLF_III_left_model_comp_int_gender,
+SLF_III_right_model_comp_int_gender,
+ST_FO_left_model_comp_int_gender,
+ST_FO_right_model_comp_int_gender,
+ST_OCC_left_model_comp_int_gender,
+ST_OCC_right_model_comp_int_gender,
+ST_PAR_left_model_comp_int_gender,
+ST_PAR_right_model_comp_int_gender,
+ST_POSTC_left_model_comp_int_gender,
+ST_POSTC_right_model_comp_int_gender,
+ST_PREC_left_model_comp_int_gender,
+ST_PREC_right_model_comp_int_gender,
+ST_PREF_left_model_comp_int_gender,
+ST_PREF_right_model_comp_int_gender,
+ST_PREM_left_model_comp_int_gender,
+ST_PREM_right_model_comp_int_gender,
+STR_left_model_comp_int_gender,
+STR_right_model_comp_int_gender,
+T_OCC_left_model_comp_int_gender,
+T_OCC_right_model_comp_int_gender,
+T_PAR_left_model_comp_int_gender,
+T_PAR_right_model_comp_int_gender,
+T_POSTC_left_model_comp_int_gender,
+T_POSTC_right_model_comp_int_gender,
+T_PREC_left_model_comp_int_gender,
+T_PREC_right_model_comp_int_gender,
+T_PREF_left_model_comp_int_gender,
+T_PREF_right_model_comp_int_gender,
+T_PREM_left_model_comp_int_gender,
+T_PREM_right_model_comp_int_gender,
+UF_left_model_comp_int_gender,
+UF_right_model_comp_int_gender)
+```
+
+```{r}
+age_model_comp3
+write.csv(age_model_comp3, "age_model_comp3.csv")
+```
+
+```{r}
+pvals_int_gender <- 
+c(0.472980596,
+0.336837915,
+0.29983666,
+0.277950645,
+0.408463751,
+0.405554007,
+0.334348082,
+0.32518881,
+0.335055107,
+0.309752238,
+0.390802259,
+0.38795266,
+0.394320641,
+0.354709793,
+0.387445347,
+0.433789036,
+0.386293055,
+0.355765854,
+0.69161292,
+0.623130244,
+0.346702329,
+0.297845511,
+0.349231979,
+0.268796741,
+0.453430145,
+0.362565622,
+0.498543539,
+0.506974139,
+0.412089036,
+0.38544554,
+0.338099998,
+0.436722029,
+0.335399109,
+0.310158058,
+0.315216974,
+0.436339761,
+0.303910765,
+0.390623584,
+0.376249215,
+0.41030085,
+0.321873365,
+0.349669728,
+0.365245475,
+0.402330124,
+0.352318259,
+0.402164295,
+0.28956295,
+0.349234688,
+0.252407323,
+0.341450231,
+0.285525102,
+0.325573968,
+0.316634462,
+0.383239863,
+0.299560017,
+0.302205117,
+0.250728824,
+0.448797929,
+0.892711686,
+0.390864004,
+0.294451689,
+0.338430775,
+0.25464768,
+0.322150942,
+0.28235285,
+0.312272461,
+0.295172868,
+0.365174538,
+0.280991485,
+0.339728679,
+0.331169558)
+
+fdr_pvals_int_gender <- p.adjust(pvals_int_gender, method = "fdr")
+
+write.csv(fdr_pvals_int_gender, "pvals_int_gender.csv")
+```
+
+#Model Comparison 4 - Quad Age V Age*Gender
+```{r}
+AF_left_model_comp_int_gender <- anova(model_AF_left_quad, model_AF_left_int_gender)
+AF_right_model_comp_int_gender <- anova(model_AF_right_quad, model_AF_right_int_gender)
+ATR_left_model_comp_int_gender <- anova(model_ATR_left_quad, model_ATR_left_int_gender)
+ATR_right_model_comp_int_gender <- anova(model_ATR_right_quad, model_ATR_right_int_gender)
+CA_model_comp_int_gender <- anova(model_CA_quad, model_CA_int_gender)
+CC1_model_comp_int_gender <- anova(model_CC1_quad, model_CC1_int_gender)
+CC2_model_comp_int_gender <- anova(model_CC2_quad, model_CC2_int_gender)
+CC3_model_comp_int_gender <- anova(model_CC3_quad, model_CC3_int_gender)
+CC4_model_comp_int_gender <- anova(model_CC4_quad, model_CC4_int_gender)
+CC5_model_comp_int_gender <- anova(model_CC5_quad, model_CC5_int_gender)
+CC6_model_comp_int_gender <- anova(model_CC6_quad, model_CC6_int_gender)
+CC7_model_comp_int_gender <- anova(model_CC7_quad, model_CC7_int_gender)
+CG_left_model_comp_int_gender <- anova(model_CG_left_quad, model_CG_left_int_gender)
+CG_right_model_comp_int_gender <- anova(model_CG_right_quad, model_CG_right_int_gender)
+CST_left_model_comp_int_gender <- anova(model_CST_left_quad, model_CST_left_int_gender)
+CST_right_model_comp_int_gender <- anova(model_CST_right_quad, model_CST_right_int_gender)
+FPT_left_model_comp_int_gender <- anova(model_FPT_left_quad, model_FPT_left_int_gender)
+FPT_right_model_comp_int_gender <- anova(model_FPT_right_quad, model_FPT_right_int_gender)
+FX_left_model_comp_int_gender <- anova(model_FX_left_quad, model_FX_left_int_gender)
+FX_right_model_comp_int_gender <- anova(model_FX_right_quad, model_FX_right_int_gender)
+ICP_left_model_comp_int_gender <- anova(model_ICP_left_quad, model_ICP_left_int_gender)
+ICP_right_model_comp_int_gender <- anova(model_ICP_right_quad, model_ICP_right_int_gender)
+IFO_left_model_comp_int_gender <- anova(model_IFO_left_quad, model_IFO_left_int_gender)
+IFO_right_model_comp_int_gender <- anova(model_IFO_right_quad, model_IFO_right_int_gender)
+ILF_left_model_comp_int_gender <- anova(model_ILF_left_quad, model_ILF_left_int_gender)
+ILF_right_model_comp_int_gender <- anova(model_ILF_right_quad, model_ILF_right_int_gender)
+MCP_model_comp_int_gender <- anova(model_MCP_quad, model_MCP_int_gender)
+MLF_left_model_comp_int_gender <- anova(model_MLF_left_quad, model_MLF_left_int_gender)
+MLF_right_model_comp_int_gender <- anova(model_MLF_right_quad, model_MLF_right_int_gender)
+OR_left_model_comp_int_gender <- anova(model_OR_left_quad, model_OR_left_int_gender)
+OR_right_model_comp_int_gender <- anova(model_OR_right_quad, model_OR_right_int_gender)
+POPT_left_model_comp_int_gender <- anova(model_POPT_left_quad, model_POPT_left_int_gender)
+POPT_right_model_comp_int_gender <- anova(model_POPT_right_quad, model_POPT_right_int_gender)
+SCP_left_model_comp_int_gender <- anova(model_SCP_left_quad, model_SCP_left_int_gender)
+SCP_right_model_comp_int_gender <- anova(model_SCP_right_quad, model_SCP_right_int_gender)
+SLF_I_left_model_comp_int_gender <- anova(model_SLF_I_left_quad, model_SLF_I_left_int_gender)
+SLF_I_right_model_comp_int_gender <- anova(model_SLF_I_right_quad, model_SLF_I_right_int_gender)
+SLF_II_left_model_comp_int_gender <- anova(model_SLF_II_left_quad, model_SLF_II_left_int_gender)
+SLF_II_right_model_comp_int_gender <- anova(model_SLF_II_right_quad, model_SLF_II_right_int_gender)
+SLF_III_left_model_comp_int_gender <- anova(model_SLF_III_left_quad, model_SLF_III_left_int_gender)
+SLF_III_right_model_comp_int_gender <- anova(model_SLF_III_right_quad, model_SLF_III_right_int_gender)
+ST_FO_left_model_comp_int_gender <- anova(model_ST_FO_left_quad, model_ST_FO_left_int_gender)
+ST_FO_right_model_comp_int_gender <- anova(model_ST_FO_right_quad, model_ST_FO_right_int_gender)
+ST_OCC_left_model_comp_int_gender <- anova(model_ST_OCC_left_quad, model_ST_OCC_left_int_gender)
+ST_OCC_right_model_comp_int_gender <- anova(model_ST_OCC_right_quad, model_ST_OCC_right_int_gender)
+ST_PAR_left_model_comp_int_gender <- anova(model_ST_PAR_left_quad, model_ST_PAR_left_int_gender)
+ST_PAR_right_model_comp_int_gender <- anova(model_ST_PAR_right_quad, model_ST_PAR_right_int_gender)
+ST_POSTC_left_model_comp_int_gender <- anova(model_ST_POSTC_left_quad, model_ST_POSTC_left_int_gender)
+ST_POSTC_right_model_comp_int_gender <- anova(model_ST_POSTC_right_quad, model_ST_POSTC_right_int_gender)
+ST_PREC_left_model_comp_int_gender <- anova(model_ST_PREC_left_quad, model_ST_PREC_left_int_gender)
+ST_PREC_right_model_comp_int_gender <- anova(model_ST_PREC_right_quad, model_ST_PREC_right_int_gender)
+ST_PREF_left_model_comp_int_gender <- anova(model_ST_PREF_left_quad, model_ST_PREF_left_int_gender)
+ST_PREF_right_model_comp_int_gender <- anova(model_ST_PREF_right_quad, model_ST_PREF_right_int_gender)
+ST_PREM_left_model_comp_int_gender <- anova(model_ST_PREM_left_quad, model_ST_PREM_left_int_gender)
+ST_PREM_right_model_comp_int_gender <- anova(model_ST_PREM_right_quad, model_ST_PREM_right_int_gender)
+STR_left_model_comp_int_gender <- anova(model_STR_left_quad, model_STR_left_int_gender)
+STR_right_model_comp_int_gender <- anova(model_STR_right_quad, model_STR_right_int_gender)
+T_OCC_left_model_comp_int_gender <- anova(model_T_OCC_left_quad, model_T_OCC_left_int_gender)
+T_OCC_right_model_comp_int_gender <- anova(model_T_OCC_right_quad, model_T_OCC_right_int_gender)
+T_PAR_left_model_comp_int_gender <- anova(model_T_PAR_left_quad, model_T_PAR_left_int_gender)
+T_PAR_right_model_comp_int_gender <- anova(model_T_PAR_right_quad, model_T_PAR_right_int_gender)
+T_POSTC_left_model_comp_int_gender <- anova(model_T_POSTC_left_quad, model_T_POSTC_left_int_gender)
+T_POSTC_right_model_comp_int_gender <- anova(model_T_POSTC_right_quad, model_T_POSTC_right_int_gender)
+T_PREC_left_model_comp_int_gender <- anova(model_T_PREC_left_quad, model_T_PREC_left_int_gender)
+T_PREC_right_model_comp_int_gender <- anova(model_T_PREC_right_quad, model_T_PREC_right_int_gender)
+T_PREF_left_model_comp_int_gender <- anova(model_T_PREF_left_quad, model_T_PREF_left_int_gender)
+T_PREF_right_model_comp_int_gender <- anova(model_T_PREF_right_quad, model_T_PREF_right_int_gender)
+T_PREM_left_model_comp_int_gender <- anova(model_T_PREM_left_quad, model_T_PREM_left_int_gender)
+T_PREM_right_model_comp_int_gender <- anova(model_T_PREM_right_quad, model_T_PREM_right_int_gender)
+UF_left_model_comp_int_gender <- anova(model_UF_left_quad, model_UF_left_int_gender)
+UF_right_model_comp_int_gender <- anova(model_UF_right_quad, model_UF_right_int_gender)
+```
+
+```{r}
+age_model_comp4 <- rbind(AF_left_model_comp_int_gender,
+AF_right_model_comp_int_gender,
+ATR_left_model_comp_int_gender,
+ATR_right_model_comp_int_gender,
+CA_model_comp_int_gender,
+CC1_model_comp_int_gender,
+CC2_model_comp_int_gender,
+CC3_model_comp_int_gender,
+CC4_model_comp_int_gender,
+CC5_model_comp_int_gender,
+CC6_model_comp_int_gender,
+CC7_model_comp_int_gender,
+CG_left_model_comp_int_gender,
+CG_right_model_comp_int_gender,
+CST_left_model_comp_int_gender,
+CST_right_model_comp_int_gender,
+FPT_left_model_comp_int_gender,
+FPT_right_model_comp_int_gender,
+FX_left_model_comp_int_gender,
+FX_right_model_comp_int_gender,
+ICP_left_model_comp_int_gender,
+ICP_right_model_comp_int_gender,
+IFO_left_model_comp_int_gender,
+IFO_right_model_comp_int_gender,
+ILF_left_model_comp_int_gender,
+ILF_right_model_comp_int_gender,
+MCP_model_comp_int_gender,
+MLF_left_model_comp_int_gender,
+MLF_right_model_comp_int_gender,
+OR_left_model_comp_int_gender,
+OR_right_model_comp_int_gender,
+POPT_left_model_comp_int_gender,
+POPT_right_model_comp_int_gender,
+SCP_left_model_comp_int_gender,
+SCP_right_model_comp_int_gender,
+SLF_I_left_model_comp_int_gender,
+SLF_I_right_model_comp_int_gender,
+SLF_II_left_model_comp_int_gender,
+SLF_II_right_model_comp_int_gender,
+SLF_III_left_model_comp_int_gender,
+SLF_III_right_model_comp_int_gender,
+ST_FO_left_model_comp_int_gender,
+ST_FO_right_model_comp_int_gender,
+ST_OCC_left_model_comp_int_gender,
+ST_OCC_right_model_comp_int_gender,
+ST_PAR_left_model_comp_int_gender,
+ST_PAR_right_model_comp_int_gender,
+ST_POSTC_left_model_comp_int_gender,
+ST_POSTC_right_model_comp_int_gender,
+ST_PREC_left_model_comp_int_gender,
+ST_PREC_right_model_comp_int_gender,
+ST_PREF_left_model_comp_int_gender,
+ST_PREF_right_model_comp_int_gender,
+ST_PREM_left_model_comp_int_gender,
+ST_PREM_right_model_comp_int_gender,
+STR_left_model_comp_int_gender,
+STR_right_model_comp_int_gender,
+T_OCC_left_model_comp_int_gender,
+T_OCC_right_model_comp_int_gender,
+T_PAR_left_model_comp_int_gender,
+T_PAR_right_model_comp_int_gender,
+T_POSTC_left_model_comp_int_gender,
+T_POSTC_right_model_comp_int_gender,
+T_PREC_left_model_comp_int_gender,
+T_PREC_right_model_comp_int_gender,
+T_PREF_left_model_comp_int_gender,
+T_PREF_right_model_comp_int_gender,
+T_PREM_left_model_comp_int_gender,
+T_PREM_right_model_comp_int_gender,
+UF_left_model_comp_int_gender,
+UF_right_model_comp_int_gender)
+```
+
+```{r}
+age_model_comp4
+write.csv(age_model_comp4, "age_model_comp4.csv")
+```
+
+```{r}
+pvals_int_gender <- 
+c()
+
+fdr_pvals_int_gender <- p.adjust(pvals_int_gender, method = "fdr")
+```
+
